@@ -115,7 +115,7 @@ public class MyAIController extends CarController{
 					applyRightTurn(getOrientation(),delta);
 				}
 				else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
-					System.out.println("northhhh");
+					route = navigation.planRoute(new Coordinate(this.getPosition()));
 				}
 				
 				else{
