@@ -30,14 +30,14 @@ public class MyAIController extends CarController{
 	private WorldSpatial.Direction previousState = null; // Keeps track of the previous state
 	
 	// Car Speed to move at
-	private float CAR_SPEED = 3;
+	private float CAR_SPEED = 2;
 	
 	// Offset used to differentiate between 0 and 360 degrees
 	private int EAST_THRESHOLD = 3;
 	private float BREAK_THRESHOLD = (float) 0.03;
-	private float CAR_SPEED_THRESHOLD1 = (float) 1.0;
-	private float CAR_SPEED_THRESHOLD2 = (float) 1.2;
-	private float CHANGE_AHEAD_SPEED = (float) 1.4;
+	private float CAR_SPEED_THRESHOLD1 = (float) 0.7;
+	private float CAR_SPEED_THRESHOLD2 = (float) 1.1;
+	private float CHANGE_AHEAD_SPEED = (float) 1.2;
 	
 	
 	public MyAIController(Car car) {
@@ -222,7 +222,7 @@ public class MyAIController extends CarController{
 				/*if there is no turn ahead, remain original car speed*/
 				if(!CheckTurningAhead(getOrientation(),currentCoordinate,currentView, delta) && getSpeed() < CAR_SPEED){
 					applyForwardAcceleration();
-					CAR_SPEED = 2 ;
+					CAR_SPEED = 1 ;
 				}
 				/*if trap is beneath car foot*/
 				if(currentView.get(currentCoordinate) instanceof TrapTile) {

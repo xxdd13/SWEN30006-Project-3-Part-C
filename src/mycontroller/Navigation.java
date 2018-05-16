@@ -36,8 +36,8 @@ public class Navigation {
 			}
 		});
 		
-		//sort lava
-		class CoordComparator implements Comparator<Coordinate> {
+		//sort lava x first then y
+		class CoordComparatorXY implements Comparator<Coordinate> {
 		    @Override
 		    public int compare(Coordinate a, Coordinate b) {
 		        if(a.x<b.x) {
@@ -51,7 +51,23 @@ public class Navigation {
 		        }
 		    }
 		}
-		Collections.sort(lavas, new CoordComparator());
+		//先x sort 再 y
+		class CoordComparatorYX implements Comparator<Coordinate> {
+		    @Override
+		    public int compare(Coordinate a, Coordinate b) {
+		        if(a.y<b.y) {
+		        		return -1;
+		        }
+		        else if(a.y==b.y) {
+		        		return a.x < b.x ? -1 : a.x == b.x ? 0 : 1;        
+		        }
+		        else {
+		        	return 1;
+		        }
+		    }
+		}
+		//Collections.sort(lavas, new CoordComparatorXY());
+		Collections.sort(lavas, new CoordComparatorYX());
 		
 	}
 	
