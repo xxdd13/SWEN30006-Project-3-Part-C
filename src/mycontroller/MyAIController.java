@@ -1,5 +1,6 @@
 package mycontroller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,20 +27,21 @@ public class MyAIController extends CarController{
 	private WorldSpatial.Direction previousState = null; // Keeps track of the previous state
 	
 	// Car Speed to move at
-	private float CAR_SPEED = 2;
 	
+	private final float FINAL_CAR_SPEED =1;
+	private float CAR_SPEED = FINAL_CAR_SPEED;
 	// Offset used to differentiate between 0 and 360 degrees
 	private int EAST_THRESHOLD = 3;
 	private float BREAK_THRESHOLD = (float) 0.03;
 	private float CAR_SPEED_THRESHOLD1 = (float) 1;
 	private float CAR_SPEED_THRESHOLD2 = (float) 1.1;
-	private float CHANGE_AHEAD_SPEED = (float) 1.2;
-	
+	private float CHANGE_AHEAD_SPEED = (float) 1.0;
+	private List<Coordinate> visited = new ArrayList<>();
 	
 	public MyAIController(Car car) {
 		super(car);
 		ai = new AIController(car);
-		navigation = new Navigation(getMap(), new DijkstraPathFinder());
+		navigation = new LavaNavigation(getMap(), new DijkstraPathFinder(),visited);
 		route = navigation.planRoute(new Coordinate(this.getPosition()));
 	}
 
@@ -59,16 +61,30 @@ public class MyAIController extends CarController{
 		Coordinate currentCoordinate = new Coordinate(this.getPosition());
 		HashMap<Coordinate, MapTile> currentView = getView();
 		
+		
 		//已经踩过的lava就不再作为探索目标
 		MapTile currentTile = currentView.get(currentCoordinate);
 		if (currentTile instanceof LavaTrap && !navigation.visited.contains(currentCoordinate)) {
-			navigation.visited.add(currentCoordinate);
-			
-			//route = navigation.getRoute();
+			visited.add(currentCoordinate);
+		}
+		
+		if(getHealth()<50 ) {
+			if(! (navigation instanceof HealthNavigation)) {
+				System.out.println("switch to heal pathfinder");
+				navigation = new HealthNavigation(getMap(), new DijkstraPathFinder(),visited);
+				route = navigation.planRoute(new Coordinate(this.getPosition()));
+			}
+		}else {
+			if(! (navigation instanceof LavaNavigation)) {
+				System.out.println("switch to lava pathfinder");
+				navigation = new LavaNavigation(getMap(), new DijkstraPathFinder(),visited);
+				route = navigation.planRoute(new Coordinate(this.getPosition()));
+			}	
 		}
 		
 		if(route.size()<=0) {
 			checkStateChange();
+			System.out.println(		(navigation instanceof HealthNavigation)	 );
 			route = navigation.planRoute(new Coordinate(this.getPosition()));
 			
 		}
@@ -100,7 +116,14 @@ public class MyAIController extends CarController{
 					applyRightTurn(getOrientation(),delta);
 				}
 				else if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
+					
+					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+					
+					applyReverseAcceleration();
+					applyRightTurn(getOrientation(),delta*2);
 					route = navigation.planRoute(new Coordinate(this.getPosition()));
+					
+					System.out.println("north south");
 				}
 				
 				else{
@@ -108,7 +131,7 @@ public class MyAIController extends CarController{
 				}
 			}
 			else if(checkSouth(currentCoordinate)) {
-				System.out.println("moving south");
+				
 				if(getOrientation().equals(WorldSpatial.Direction.WEST)){
 					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 					applyLeftTurn(getOrientation(),delta);
@@ -118,7 +141,12 @@ public class MyAIController extends CarController{
 					applyRightTurn(getOrientation(),delta);
 				}
 				else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
+					
+					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+					applyReverseAcceleration();
+					applyRightTurn(getOrientation(),delta*2);
 					route = navigation.planRoute(new Coordinate(this.getPosition()));
+					System.out.println("south north  ");
 				}
 				
 				else{
@@ -135,7 +163,14 @@ public class MyAIController extends CarController{
 					applyRightTurn(getOrientation(),delta);
 				}
 				else if(getOrientation().equals(WorldSpatial.Direction.WEST)){
+					System.out.println("east west");
+					
+					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+					
+					applyReverseAcceleration();
+					applyRightTurn(getOrientation(),delta*2);
 					route = navigation.planRoute(new Coordinate(this.getPosition()));
+					
 				}
 				
 				else{
@@ -152,6 +187,11 @@ public class MyAIController extends CarController{
 					applyRightTurn(getOrientation(),delta);
 				}
 				else if(getOrientation().equals(WorldSpatial.Direction.EAST)){
+					System.out.println("west east");
+					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+					
+					applyReverseAcceleration();
+					applyRightTurn(getOrientation(),delta*2);
 					route = navigation.planRoute(new Coordinate(this.getPosition()));
 				}
 				
@@ -193,7 +233,7 @@ public class MyAIController extends CarController{
 				/*if there is no turn ahead, remain original car speed*/
 				if(!CheckTurningAhead(getOrientation(),currentCoordinate,currentView, delta) && getSpeed() < CAR_SPEED){
 					applyForwardAcceleration();
-					CAR_SPEED = 1 ;
+					CAR_SPEED = FINAL_CAR_SPEED ;
 				}
 				/*if trap is beneath car foot*/
 				if(currentView.get(currentCoordinate) instanceof TrapTile) {
@@ -209,11 +249,24 @@ public class MyAIController extends CarController{
 				isFollowingCoordinate = false;
 				CAR_SPEED = CHANGE_AHEAD_SPEED;
 			}
+		
 		}
 	}
 
 	/*Supporting functions down here*/
 	
+	private boolean lavaInView(HashMap<Coordinate, MapTile> currentView) {
+		for (MapTile val : currentView.values()){
+
+	        //iterate over tiles
+			if (val instanceof LavaTrap) {
+				return true;
+			}
+	    }
+		return false;
+		
+	}
+
 	/**
 	 * Readjust the car to the orientation we are in.
 	 * @param lastTurnDirection

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import tiles.HealthTrap;
 import tiles.LavaTrap;
 import tiles.MapTile;
 import utilities.Coordinate;
@@ -17,12 +18,14 @@ public class Navigation {
 	List<Coordinate> route;
 	IPathFinder pathfinder;
 	List<Coordinate> lavas = new ArrayList<>();
+	List<Coordinate> healths = new ArrayList<>();
 	public List<Coordinate> visited = new ArrayList<>();
 	
-	public Navigation(HashMap<Coordinate, MapTile> map, IPathFinder pathfinder) {
+	public Navigation(HashMap<Coordinate, MapTile> map, IPathFinder pathfinder,List<Coordinate> visitedList) {
 		
 		this.map = map;
 		this.pathfinder = pathfinder;
+		this.visited = visitedList;
 		
 		//adds finish tiles
 		finish = new ArrayList<>();
@@ -33,6 +36,9 @@ public class Navigation {
 			}
 			if (v instanceof LavaTrap) {
 				lavas.add(k);
+			}
+			if (v instanceof HealthTrap) {
+				healths.add(k);
 			}
 		});
 		
@@ -78,38 +84,16 @@ public class Navigation {
 		//没踩过的作为目标
 		for (Coordinate c : lavas) {
 		    if (!visited.contains(c)) {
-		    	
-		    		/*
-		    		if(visited.size()-1 >=0) {
-		    			Coordinate lastVisited = visited.get(visited.size()-1);
-		    			
-		    			//防止u turn
-			    		if(Math.abs(lastVisited.x-c.x)> 1 && Math.abs(lastVisited.y-c.y)>1) {
-			    			target.add(c);
-					    break;
-			    		}
-		    		}
-		    		else {
-		    			target.add(c);
-					break;
-		    		}
-		    		
-		    		*/
-		    	
-		    	
-		    	
 		    		target.add(c);
-		    		break;
-		    
-		    }
-		    
-		    
+		    		break;		    
+		    }	    
 		}
 		
 		System.out.println("new target: "+target);
 		route = pathfinder.planRoute(location, target, map);
 		return route;
 	}
+
 	
 /** updates the map with new traps, and replans route if necessary
  *  returns true when route is replanned  **/
