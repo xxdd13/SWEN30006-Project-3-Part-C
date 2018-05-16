@@ -67,7 +67,7 @@ public class MyAIController extends CarController{
 		MapTile currentTile = currentView.get(currentCoordinate);
 		if (currentTile instanceof LavaTrap && !navigation.visited.contains(currentCoordinate)) {
 			navigation.visited.add(currentCoordinate);
-			route = navigation.getRoute();
+			//route = navigation.getRoute();
 		}
 		
 		if(route.size()<=0) {
@@ -190,6 +190,7 @@ public class MyAIController extends CarController{
 			}
 			/*car is moving backward*/
 			else if(isGoingBackward) {
+				System.out.println("倒车无效");
 				applyReverseAcceleration();
 				if(!checkReverseFollowingCoordinate(getOrientation(),currentCoordinate)) {
 					afterReversing = true;
