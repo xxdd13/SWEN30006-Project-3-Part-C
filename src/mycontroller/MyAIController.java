@@ -12,11 +12,7 @@ import utilities.Coordinate;
 import world.Car;
 import world.WorldSpatial;
 
-/*Project Group 4
-Yi Siu Maria Choo
-Qing Feng Chye
-Huijun Lao
-*/
+
 public class MyAIController extends CarController{
 	Navigation navigation;
 	List<Coordinate> route;
@@ -35,7 +31,7 @@ public class MyAIController extends CarController{
 	// Offset used to differentiate between 0 and 360 degrees
 	private int EAST_THRESHOLD = 3;
 	private float BREAK_THRESHOLD = (float) 0.03;
-	private float CAR_SPEED_THRESHOLD1 = (float) 0.7;
+	private float CAR_SPEED_THRESHOLD1 = (float) 1;
 	private float CAR_SPEED_THRESHOLD2 = (float) 1.1;
 	private float CHANGE_AHEAD_SPEED = (float) 1.2;
 	
@@ -67,29 +63,30 @@ public class MyAIController extends CarController{
 		MapTile currentTile = currentView.get(currentCoordinate);
 		if (currentTile instanceof LavaTrap && !navigation.visited.contains(currentCoordinate)) {
 			navigation.visited.add(currentCoordinate);
+			
 			//route = navigation.getRoute();
 		}
 		
 		if(route.size()<=0) {
+			checkStateChange();
 			route = navigation.planRoute(new Coordinate(this.getPosition()));
 			
 		}
-		if(currentCoordinate.equals(route.get(0))) {
-			route.remove(0);
-		}
-		if (navigation.updateMap(this.getView(), currentCoordinate)) {
-			route = navigation.getRoute();
+		else {
+			if(currentCoordinate.equals(route.get(0))) {
+				route.remove(0);
+			}
+			if (navigation.updateMap(this.getView(), currentCoordinate)) {
+				route = navigation.getRoute();
+			}
 		}
 		checkStateChange();
 		
 		/*car is going to change direction in next move(seen ahead the next coordinate is not in the same direction)*/
 		if(!isFollowingCoordinate) {
-			/*after reversing need to speed up a bit to let car remain constant speed*/
-			if(afterReversing) {
-				applyForwardAcceleration();
-			}
+
 			/*if car is not going back then speed up until car speed limit*/
-			if(getSpeed() < CAR_SPEED && !isGoingBackward){
+			if(getSpeed() < CAR_SPEED){
 				applyForwardAcceleration();
 			}
 			/*condition checking which turn should apply based on car orientation*/
@@ -102,18 +99,13 @@ public class MyAIController extends CarController{
 					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 					applyRightTurn(getOrientation(),delta);
 				}
-				else if(getOrientation().equals(WorldSpatial.Direction.SOUTH)) {
-					if(getSpeed() >0.03) {
-						applyBrake();
-					}
-					isGoingBackward = true;
-					isFollowingCoordinate = true;
-				}
+				
 				else{
 					isFollowingCoordinate = true;
 				}
 			}
 			else if(checkSouth(currentCoordinate)) {
+				System.out.println("moving south");
 				if(getOrientation().equals(WorldSpatial.Direction.WEST)){
 					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 					applyLeftTurn(getOrientation(),delta);
@@ -122,16 +114,13 @@ public class MyAIController extends CarController{
 					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 					applyRightTurn(getOrientation(),delta);
 				}
-				else if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
-					if(getSpeed() >BREAK_THRESHOLD) {
-						applyBrake();
-					}
-					isGoingBackward = true;
-					isFollowingCoordinate = true;
+				else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
+					System.out.println("northhhh");
 				}
+				
 				else{
-					isFollowingCoordinate = true;
-				}
+					isFollowingCoordinate = false;
+				}//as
 			}
 			else if(checkEast(currentCoordinate)) {
 				if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
@@ -142,13 +131,7 @@ public class MyAIController extends CarController{
 					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 					applyRightTurn(getOrientation(),delta);
 				}
-				else if(getOrientation().equals(WorldSpatial.Direction.WEST)) {
-					if(getSpeed() >BREAK_THRESHOLD) {
-						applyBrake();
-					}
-					isGoingBackward = true;
-					isFollowingCoordinate = true;
-				}
+				
 				else{
 					isFollowingCoordinate = true;
 				}
@@ -162,14 +145,7 @@ public class MyAIController extends CarController{
 					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 					applyRightTurn(getOrientation(),delta);
 				}
-				else if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
-					if(getSpeed() >BREAK_THRESHOLD) {
-						applyBrake();
-					}
-					isGoingBackward = true;
-					isFollowingCoordinate = true;
 				
-				}
 				else{
 					isFollowingCoordinate = true;
 				}
@@ -188,22 +164,7 @@ public class MyAIController extends CarController{
 			else if(isTurningLeft){
 				applyLeftTurn(getOrientation(),delta);
 			}
-			/*car is moving backward*/
-			else if(isGoingBackward) {
-				System.out.println("倒车无效");
-				applyReverseAcceleration();
-				if(!checkReverseFollowingCoordinate(getOrientation(),currentCoordinate)) {
-					afterReversing = true;
-					isGoingBackward = false;
-					isFollowingCoordinate = false;
-				}
-				if(checkReverseFollowingCoordinate(getOrientation(),currentCoordinate)) {
-					if(getSpeed() >BREAK_THRESHOLD) {
-						applyBrake();
-					}
-				}
-				
-			}
+			
 			/* car is moving forward*/
 
 			else if(checkFollowingCoordinate(getOrientation(),currentCoordinate)){
