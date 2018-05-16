@@ -99,6 +99,9 @@ public class MyAIController extends CarController{
 					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 					applyRightTurn(getOrientation(),delta);
 				}
+				else if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
+					route = navigation.planRoute(new Coordinate(this.getPosition()));
+				}
 				
 				else{
 					isFollowingCoordinate = true;
@@ -131,6 +134,9 @@ public class MyAIController extends CarController{
 					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 					applyRightTurn(getOrientation(),delta);
 				}
+				else if(getOrientation().equals(WorldSpatial.Direction.WEST)){
+					route = navigation.planRoute(new Coordinate(this.getPosition()));
+				}
 				
 				else{
 					isFollowingCoordinate = true;
@@ -144,6 +150,9 @@ public class MyAIController extends CarController{
 				else if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
 					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 					applyRightTurn(getOrientation(),delta);
+				}
+				else if(getOrientation().equals(WorldSpatial.Direction.EAST)){
+					route = navigation.planRoute(new Coordinate(this.getPosition()));
 				}
 				
 				else{
