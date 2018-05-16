@@ -66,8 +66,8 @@ public class Navigation {
 		        }
 		    }
 		}
-		//Collections.sort(lavas, new CoordComparatorXY());
-		Collections.sort(lavas, new CoordComparatorYX());
+		Collections.sort(lavas, new CoordComparatorXY());
+		//Collections.sort(lavas, new CoordComparatorYX());
 		
 	}
 	
@@ -79,7 +79,7 @@ public class Navigation {
 		for (Coordinate c : lavas) {
 		    if (!visited.contains(c)) {
 		    	
-		    		/*放弃
+		    		/*
 		    		if(visited.size()-1 >=0) {
 		    			Coordinate lastVisited = visited.get(visited.size()-1);
 		    			
