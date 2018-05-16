@@ -190,10 +190,8 @@ public class MyAIController extends CarController{
 			}
 			/*car is moving backward*/
 			else if(isGoingBackward) {
-				System.out.println("倒车");
 				applyReverseAcceleration();
 				if(!checkReverseFollowingCoordinate(getOrientation(),currentCoordinate)) {
-					System.out.println("完成倒车");
 					afterReversing = true;
 					isGoingBackward = false;
 					isFollowingCoordinate = false;
