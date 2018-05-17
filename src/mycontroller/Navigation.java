@@ -114,7 +114,7 @@ public class Navigation {
 		return replan;	
 	}
 	
-	List<Coordinate> getRoute() {
+	public List<Coordinate> getRoute() {
 		return this.route;
 	}
 
