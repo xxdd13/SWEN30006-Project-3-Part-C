@@ -160,8 +160,10 @@ public class MyAIController extends CarController{
 					
 					if(checkEast(currentCoordinate)){
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+						System.out.println("checked east");
 						applyLeftTurn(getOrientation(),delta);
 					}else if(checkWest(currentCoordinate)) {
+						System.out.println("checked west");
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 						applyRightTurn(getOrientation(),delta);	
 					}

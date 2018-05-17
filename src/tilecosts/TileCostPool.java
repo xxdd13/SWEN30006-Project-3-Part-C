@@ -19,7 +19,7 @@ public class TileCostPool {
 		pool.put((new MudTrap()).getClass(), new MudTrapCost());
 		pool.put((new LavaTrap()).getClass(), new LavaTrapCost());
 		pool.put((new GrassTrap()).getClass(), new GrassTrapCost());
-		pool.put((new HealthTrap()).getClass(), new MapTileCost());
+		pool.put((new HealthTrap()).getClass(), new HealthTileCost());
 	}
 	
 	public static TileCostPool getInstance() {
