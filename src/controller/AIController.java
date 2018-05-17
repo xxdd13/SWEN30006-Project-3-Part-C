@@ -106,7 +106,7 @@ public class AIController extends CarController {
 			
 			if(route==null||route.size()<=0) { //current route finish
 				System.out.println("current key: "+(getKey()-1));
-				route = navigation.planRoute(currentCoordinate, keyList[getKey()-1]);			
+				route = navigation.planRoute(currentCoordinate, keyList[getKey()-2]);			
 			}else {
 				if(currentCoordinate.equals(route.get(0))) {
 					route.remove(0);
@@ -173,13 +173,13 @@ public class AIController extends CarController {
 						if(checkEast(currentView)) {
 							System.out.println("choose turn right");
 							Coordinate newCoordinate = new Coordinate(currentCoordinate.x+1,currentCoordinate.y);
-							route = navigation.planRoute(newCoordinate, keyList[totalKeys-getKey()]);
+							route = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
 							System.out.println("new route: "+route);
 						}
 						else if(checkWest(currentView)) {
 							System.out.println("choose turn left");
 							Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y);
-							route = navigation.planRoute(newCoordinate, keyList[totalKeys-getKey()]);
+							route = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
 							System.out.println("new route: "+route);
 							
 						}
