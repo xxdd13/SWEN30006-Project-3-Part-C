@@ -165,7 +165,7 @@ public class MyAIController extends CarController{
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 						applyRightTurn(getOrientation(),delta);	
 					}
-					applyForwardAcceleration();
+					
 					System.out.println("north south");
 					
 				}

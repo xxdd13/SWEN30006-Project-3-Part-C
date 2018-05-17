@@ -105,7 +105,7 @@ public class AIController extends CarController {
 			//plan new route
 			
 			if(route==null||route.size()<=0) { //current route finish
-				System.out.println("current key: "+(getKey()-1));
+				System.out.println("current key: "+(getKey()-2));
 				route = navigation.planRoute(currentCoordinate, keyList[getKey()-2]);			
 			}else {
 				if(currentCoordinate.equals(route.get(0))) {
@@ -126,12 +126,14 @@ public class AIController extends CarController {
 				
 				/*condition checking which turn should apply based on car orientation*/
 				if(checkNorth(currentCoordinate)){
-					//System.out.println("checking north");
+					
 					if(getOrientation().equals(WorldSpatial.Direction.EAST)){
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 						applyLeftTurn(getOrientation(),delta);
+						System.out.println("checking north east");
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.WEST)){
+						System.out.println("checking north west");
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 						applyRightTurn(getOrientation(),delta);
 					}
@@ -155,7 +157,7 @@ public class AIController extends CarController {
 					}
 				}
 				else if(checkSouth(currentCoordinate)) {
-					
+					System.out.println("checking south");
 					
 					
 					if(getOrientation().equals(WorldSpatial.Direction.WEST)){
@@ -164,19 +166,19 @@ public class AIController extends CarController {
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.EAST)){
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+						//KEY 1 PROBLEM; trys to turn but crash
 						applyRightTurn(getOrientation(),delta);
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
 						System.out.println("U turn ! south to north");
 						
-						//check whether to turn left or right
-						if(checkEast(currentView)) {
+						if(checkWest(currentView)) {
 							System.out.println("choose turn right");
 							Coordinate newCoordinate = new Coordinate(currentCoordinate.x+1,currentCoordinate.y);
 							route = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
 							System.out.println("new route: "+route);
 						}
-						else if(checkWest(currentView)) {
+						else if(checkEast(currentView)) {
 							System.out.println("choose turn left");
 							Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y);
 							route = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
@@ -191,7 +193,7 @@ public class AIController extends CarController {
 					}//as
 				}
 				else if(checkEast(currentCoordinate)) {
-					//System.out.println("checking east");
+					System.out.println("checking east");
 					
 					if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
@@ -221,7 +223,7 @@ public class AIController extends CarController {
 					}
 				}
 				else if(checkWest(currentCoordinate)) {
-					//System.out.println("checking west 		current direction:"+getOrientation());
+					System.out.println("checking west 		current direction:"+getOrientation());
 					
 					if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
@@ -233,16 +235,7 @@ public class AIController extends CarController {
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.EAST)){
 						
-						if(checkNorth(currentCoordinate)){
-							System.out.println("west east n");
-							lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-							applyLeftTurn(getOrientation(),delta);
-						}else if(checkSouth(currentCoordinate)) {
-							System.out.println("west east s");
-							lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-							applyRightTurn(getOrientation(),delta);	
-						}
-						applyForwardAcceleration();
+						System.out.println("west east U turn");
 					}
 					
 					else{
@@ -660,13 +653,32 @@ public class AIController extends CarController {
 		Coordinate ahead1;
 		Coordinate ahead2;
 		Coordinate ahead3;
+		Coordinate ahead4;
+		Coordinate ahead5;
+		Coordinate ahead6;
 		switch(orientation){
 		case EAST:
 			ahead1 = new Coordinate(currentCoordinate.x+1, currentCoordinate.y);
 			ahead2 = new Coordinate(currentCoordinate.x+2, currentCoordinate.y);
 			ahead3 = new Coordinate(currentCoordinate.x+3, currentCoordinate.y);
-			if(route.size() > 3) {
+			ahead4 = new Coordinate(currentCoordinate.x+4, currentCoordinate.y);
+			ahead5 = new Coordinate(currentCoordinate.x+5, currentCoordinate.y);
+			ahead6 = new Coordinate(currentCoordinate.x+6, currentCoordinate.y);
+			if(route.size() > 4) {
+				if(!ahead1.equals(route.get(0)) || !ahead2.equals(route.get(1)) || !ahead3.equals(route.get(2))
+						|| !ahead4.equals(route.get(3))|| !ahead5.equals(route.get(4))	){
+					flag = true;
+				}
+			}else if(route.size() > 3) {
 				if(!ahead1.equals(route.get(0)) || !ahead2.equals(route.get(1)) || !ahead3.equals(route.get(2))){
+					flag = true;
+				}
+			}else if(route.size() > 2) {
+				if(!ahead2.equals(route.get(0)) || !ahead2.equals(route.get(1))){
+					flag = true;
+				}
+			}else if(route.size() > 1) {
+				if(!ahead1.equals(route.get(0))){
 					flag = true;
 				}
 			}
@@ -707,7 +719,7 @@ public class AIController extends CarController {
 		default:
 			break;
 		}
-	
+		if(flag) System.out.println("Turning ahead");
 		return flag;
 		
 	}

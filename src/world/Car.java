@@ -334,7 +334,7 @@ public class Car extends Sprite{
 			float scalar = this.velocity.len() / MAX_REVERSE_SPEED;
 			this.velocity.scl(1/scalar);
 		}
-		else if (this.velocity.len() < EPSILON){
+		else if (this.velocity.len() < 2*EPSILON){
 			this.velocity.x = 0;
 			this.velocity.y = 0;
 			if(carDirection.equals(State.FORWARD)){
