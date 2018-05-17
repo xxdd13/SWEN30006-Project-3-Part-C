@@ -11,20 +11,23 @@ import tiles.LavaTrap;
 import tiles.MapTile;
 import utilities.Coordinate;
 
+
 public class HealthNavigation extends Navigation{
+	List<Coordinate> healths = new ArrayList<>();
 
 	
 	public HealthNavigation(HashMap<Coordinate, MapTile> map, IPathFinder pathfinder,List<Coordinate> visitedList) {
 		
 		super(map, pathfinder,visitedList);
+		this.healths = super.healths;
 		
 	}
 	private float calcDistance(Coordinate c1, Coordinate c2) {
 		
-		return (float) Math.abs(Math.sqrt(Math.pow(c1.x, 2)+Math.pow(c1.y, 2))- Math.sqrt(Math.pow(c2.x, 2)+Math.pow(c2.y, 2)));
+		return (float) Math.sqrt(Math.pow(c1.x-c2.x, 2)  +  Math.pow(c1.y-c2.y, 2) );
 	}
 	@Override
-	public List<Coordinate> planRoute(Coordinate location) {
+	public List<Coordinate> planRoute(Coordinate location, Coordinate targetLocation) {
 		
 		
 		//sort by distance to car, find the closest one
@@ -34,7 +37,7 @@ public class HealthNavigation extends Navigation{
 		        if(calcDistance(location,a) < calcDistance(location,b)) {
 		        		return -1;
 		        }
-		        else if(  (calcDistance(location,a)- calcDistance(location,b)) < 0.0001) {
+		        else if(  Math.abs(calcDistance(location,a)- calcDistance(location,b)) < 0.0001) {
 		        		return 0; 
 		        }
 		        else {
@@ -42,11 +45,13 @@ public class HealthNavigation extends Navigation{
 		        }
 		    }
 		}
-		Collections.sort(super.healths, new HealthTrapComparator());
+		//System.out.println("before sorting : "+this.healths);
+		Collections.sort(this.healths, new HealthTrapComparator());
+		//System.out.println("after  sorting : "+this.healths);
 		List<Coordinate> healthTarget = new ArrayList<>();
-		healthTarget.add(super.healths.get(1)); //prevent stack near wall
+		healthTarget.add(this.healths.get(0)); 
 		
-		System.out.println("HEALING ! new target: "+healthTarget);
+		System.out.println("HEALING ! new target: "+healthTarget  + "                currently at "+location);
 		route = pathfinder.planRoute(location, healthTarget, super.map);
 		return route;
 	}

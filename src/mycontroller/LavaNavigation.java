@@ -23,14 +23,15 @@ public class LavaNavigation extends Navigation {
 		List<Coordinate> target = new ArrayList<Coordinate>();
 
 		//没踩过的作为目标
-		for (Coordinate c : lavas) {
+		for (Coordinate c : keyList) {
+			System.out.println(c);
 		    if (!visited.contains(c)) {
 		    		target.add(c);
 		    		break;		    
 		    }	    
 		}
 		
-		System.out.println("new target: "+target);
+		System.out.println("new target: "+target+ "                currently at "+location);
 		route = pathfinder.planRoute(location, target, map);
 		return route;
 	}

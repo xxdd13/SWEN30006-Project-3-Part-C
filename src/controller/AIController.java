@@ -1,8 +1,16 @@
 package controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import mycontroller.DijkstraPathFinder;
+import mycontroller.LavaNavigation;
+import mycontroller.Navigation;
+import tiles.HealthTrap;
+import tiles.LavaTrap;
 import tiles.MapTile;
+import tiles.TrapTile;
 import utilities.Coordinate;
 import world.Car;
 import world.WorldSpatial;
@@ -20,84 +28,356 @@ public class AIController extends CarController {
 	private WorldSpatial.Direction previousState = null; // Keeps track of the previous state
 	
 	// Car Speed to move at
-	private final float CAR_SPEED = 3;
+	//private final float CAR_SPEED = 3;
 	
 	// Offset used to differentiate between 0 and 360 degrees
 	private int EAST_THRESHOLD = 3;
 	
+	/////////////////////
+	private boolean isGoingBackward = false;
+	private boolean afterReversing = false;
+	private boolean isFollowingCoordinate = false;
+	private final float FINAL_CAR_SPEED =(float) 3;
+	private float CAR_SPEED = FINAL_CAR_SPEED;
+	private float BREAK_THRESHOLD = (float) 0.03;
+	private float CAR_SPEED_THRESHOLD1 = (float) 1;
+	private float CAR_SPEED_THRESHOLD2 = (float) 1.1;
+	private float CHANGE_AHEAD_SPEED = (float) 1.4;
+	
+	Navigation navigation;
+	List<Coordinate> route;
+	private List<Coordinate> visited = new ArrayList<>();
+	/////////////////////
+	
+	public Coordinate[] keyList = new Coordinate[getKey()-1];
+	
 	public AIController(Car car) {
 		super(car);
+		navigation = new LavaNavigation(getMap(), new DijkstraPathFinder(),visited);
+		
 	}
 	
 	Coordinate initialGuess;
 	boolean notSouth = true;
+	
+	private boolean hasAllKeys() {
+		for (int i=0;i<(keyList.length-1);i++) {
+			if (keyList[i]==null) return false;
+		}
+		return true;
+	}
+	
+	private void viewGetKey(HashMap<Coordinate, MapTile> view) {
+		view.forEach((key,val) -> {
+
+			if (val instanceof LavaTrap) {
+				int keyNum =((LavaTrap) val).getKey();
+				if( keyNum>0 && keyList[keyNum-1]==null) {
+					keyList[keyNum-1]=key;
+					System.out.println("found key: "+keyNum+" at "+key);
+				} 
+			}
+		});
+	}
+	
 	@Override
 	public void update(float delta) {
+		//System.out.println(keyList.length);
 		
 		// Gets what the car can see
 		HashMap<Coordinate, MapTile> currentView = getView();
+		Coordinate currentCoordinate = new Coordinate(this.getPosition());
+		MapTile currentTile = currentView.get(currentCoordinate);
 		
-		checkStateChange();
-
-		// If you are not following a wall initially, find a wall to stick to!
-		if(!isFollowingWall){
-			if(getSpeed() < CAR_SPEED){
-				applyForwardAcceleration();
-			}
-			// Turn towards the north
-			if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
-				lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-				applyLeftTurn(getOrientation(),delta);
-			}
-			if(checkNorth(currentView)){
-				// Turn right until we go back to east!
-				if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
-					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-					applyRightTurn(getOrientation(),delta);
-				}
-				else{
-					isFollowingWall = true;
-				}
-			}
-		}
-		// Once the car is already stuck to a wall, apply the following logic
-		else{
+		if(hasAllKeys()) {  //ALL keys have been found
 			
-			// Readjust the car if it is misaligned.
-			readjust(lastTurnDirection,delta);
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			
-			if(isTurningRight){
-				applyRightTurn(getOrientation(),delta);
+			
+			checkStateChange();
+			
+			//plan new route
+			int keyIndex = 0; //start from key 1
+			if(route.size()<1) { //current route finish
+				keyIndex+=1;
 			}
-			else if(isTurningLeft){
-				// Apply the left turn if you are not currently near a wall.
-				if(!checkFollowingWall(getOrientation(),currentView)){
-					applyLeftTurn(getOrientation(),delta);
+			route = navigation.planRoute(currentCoordinate, keyList[keyIndex]);
+			
+			/*check if car is following current route*/
+			if(!isFollowingCoordinate) {
+				if(route.size()>1) {
+					if(getOrientation().equals(WorldSpatial.Direction.EAST)){
+						if(	(route.get(1).x+1)== route.get(0).x) {
+								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+								applyRightTurn(getOrientation(),delta);	
+								applyReverseAcceleration();
+								applyForwardAcceleration();
+						}
+					}
+					else if(getOrientation().equals(WorldSpatial.Direction.WEST)){
+						if(	(route.get(1).x-1)== route.get(0).x) {
+							lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+							applyRightTurn(getOrientation(),delta);	
+							
+						}
+					}
+					else if(getOrientation().equals(WorldSpatial.Direction.SOUTH)) {
+						if(	(route.get(1).y-1)== route.get(0).x) {
+							lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+							applyRightTurn(getOrientation(),delta);
+							
+						}
+					}
+					else{
+						if(	(route.get(1).y+1)== route.get(0).y) {
+							lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+							applyLeftTurn(getOrientation(),delta);	
+							applyReverseAcceleration();
+							applyForwardAcceleration();
+						}
+					}
+					
 				}
-				else{
-					isTurningLeft = false;
-				}
-			}
-			// Try to determine whether or not the car is next to a wall.
-			else if(checkFollowingWall(getOrientation(),currentView)){
-				// Maintain some velocity
+				
+				/*if car is not going back then speed up until car speed limit*/
 				if(getSpeed() < CAR_SPEED){
 					applyForwardAcceleration();
 				}
-				// If there is wall ahead, turn right!
-				if(checkWallAhead(getOrientation(),currentView)){
-					lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-					isTurningRight = true;				
+				/*condition checking which turn should apply based on car orientation*/
+				if(checkNorth(currentCoordinate)){
+					if(getOrientation().equals(WorldSpatial.Direction.EAST)){
+						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+						applyLeftTurn(getOrientation(),delta);
+					}
+					else if(getOrientation().equals(WorldSpatial.Direction.WEST)){
+						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+						applyRightTurn(getOrientation(),delta);
+					}
+					else if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
+						
+						if(checkEast(currentCoordinate)){
+							lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+							applyLeftTurn(getOrientation(),delta);
+						}else if(checkWest(currentCoordinate)) {
+							lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+							applyRightTurn(getOrientation(),delta);	
+						}
+						applyForwardAcceleration();
+						System.out.println("north south");
+						
+					}
 					
+					
+					else{
+						isFollowingCoordinate = true;
+					}
 				}
-
+				else if(checkSouth(currentCoordinate)) {
+					
+					if(getOrientation().equals(WorldSpatial.Direction.WEST)){
+						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+						applyLeftTurn(getOrientation(),delta);
+					}
+					else if(getOrientation().equals(WorldSpatial.Direction.EAST)){
+						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+						applyRightTurn(getOrientation(),delta);
+					}
+					else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
+						
+						if(checkEast(currentCoordinate)){
+							lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+							applyRightTurn(getOrientation(),delta);
+							System.out.println("south north  e");
+						}else if(checkWest(currentCoordinate)) {
+							lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+							applyLeftTurn(getOrientation(),delta);
+							System.out.println("south north w");
+						}	
+					}
+					
+					else{
+						isFollowingCoordinate = false;
+					}//as
+				}
+				else if(checkEast(currentCoordinate)) {
+					if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
+						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+						applyLeftTurn(getOrientation(),delta);
+					}
+					else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
+						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+						applyRightTurn(getOrientation(),delta);
+					}
+					else if(getOrientation().equals(WorldSpatial.Direction.WEST)){
+						
+						System.out.println("east west");
+						
+						if(checkSouth(currentCoordinate)){
+							lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+							applyLeftTurn(getOrientation(),delta);
+						}else if(checkNorth(currentCoordinate)) {
+							lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+							applyRightTurn(getOrientation(),delta);	
+						}
+						applyForwardAcceleration();
+						
+					}
+					
+					else{
+						isFollowingCoordinate = true;
+					}
+				}
+				else if(checkWest(currentCoordinate)) {
+					if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
+						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+						applyLeftTurn(getOrientation(),delta);
+					}
+					else if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
+						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+						applyRightTurn(getOrientation(),delta);
+					}
+					else if(getOrientation().equals(WorldSpatial.Direction.EAST)){
+						
+						if(checkNorth(currentCoordinate)){
+							System.out.println("west east n");
+							lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+							applyLeftTurn(getOrientation(),delta);
+						}else if(checkSouth(currentCoordinate)) {
+							System.out.println("west east s");
+							lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+							applyRightTurn(getOrientation(),delta);	
+						}
+						applyForwardAcceleration();
+					}
+					
+					else{
+						isFollowingCoordinate = true;
+					}
+				}
+			
 			}
-			// This indicates that I can do a left turn if I am not turning right
+			
+			/*car is following the route planned
+			 * check if car is turning right or left or going backward direction
+			 * route speed limit is set here
+			 */
+			else {
+				readjust(lastTurnDirection,delta);
+				if(isTurningRight){
+					applyRightTurn(getOrientation(),delta);
+				}
+				else if(isTurningLeft){
+					applyLeftTurn(getOrientation(),delta);
+				}
+				
+				/* car is moving forward*/
+
+				else if(checkFollowingCoordinate(getOrientation(),currentCoordinate)){
+					afterReversing = false;
+					/*check if next 3 coordinate in route, if there is change in front then slow down*/
+					if(CheckTurningAhead(getOrientation(),currentCoordinate,currentView, delta)) {
+						
+						CAR_SPEED = CAR_SPEED_THRESHOLD1;
+						if(getSpeed() > CAR_SPEED_THRESHOLD1) {
+							applyBrake();
+						}
+						else if(CAR_SPEED < CAR_SPEED_THRESHOLD2){
+							applyForwardAcceleration();
+							
+						}
+					}
+					/*if there is no turn ahead, remain original car speed*/
+					if(!CheckTurningAhead(getOrientation(),currentCoordinate,currentView, delta) && getSpeed() < CAR_SPEED){
+						applyForwardAcceleration();
+						CAR_SPEED = FINAL_CAR_SPEED ;
+					}
+					/*if trap is beneath car foot*/
+					if(currentView.get(currentCoordinate) instanceof TrapTile) {
+						if(((TrapTile)currentView.get(currentCoordinate)).canAccelerate()) {
+							
+							
+							//applyForwardAcceleration();
+						}
+					}
+				}
+				/*if not following coordinate,switch to top function*/
+				else if(!checkFollowingCoordinate(getOrientation(),currentCoordinate)){
+					isFollowingCoordinate = false;
+					CAR_SPEED = CHANGE_AHEAD_SPEED;
+				}
+			
+			}
+			
+			
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		}else {
+			viewGetKey(currentView); //missing keys, keep searching
+			
+			checkStateChange();
+
+			// If you are not following a wall initially, find a wall to stick to!
+			if(!isFollowingWall){
+				if(getSpeed() < CAR_SPEED){
+					applyForwardAcceleration();
+				}
+				// Turn towards the north
+				if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
+					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+					applyLeftTurn(getOrientation(),delta);
+				}
+				if(checkNorth(currentView)){
+					// Turn right until we go back to east!
+					if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
+						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+						applyRightTurn(getOrientation(),delta);
+					}
+					else{
+						isFollowingWall = true;
+					}
+				}
+			}
+			// Once the car is already stuck to a wall, apply the following logic
 			else{
-				lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-				isTurningLeft = true;
+				
+				// Readjust the car if it is misaligned.
+				readjust(lastTurnDirection,delta);
+				
+				if(isTurningRight){
+					applyRightTurn(getOrientation(),delta);
+				}
+				else if(isTurningLeft){
+					// Apply the left turn if you are not currently near a wall.
+					if(!checkFollowingWall(getOrientation(),currentView)){
+						applyLeftTurn(getOrientation(),delta);
+					}
+					else{
+						isTurningLeft = false;
+					}
+				}
+				// Try to determine whether or not the car is next to a wall.
+				else if(checkFollowingWall(getOrientation(),currentView)){
+					// Maintain some velocity
+					if(getSpeed() < CAR_SPEED){
+						applyForwardAcceleration();
+					}
+					// If there is wall ahead, turn right!
+					if(checkWallAhead(getOrientation(),currentView)){
+						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+						isTurningRight = true;				
+						
+					}
+
+				}
+				// This indicates that I can do a left turn if I am not turning right
+				else{
+					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+					isTurningLeft = true;
+				}
 			}
 		}
+		
+		
+		
 		
 		
 
@@ -370,4 +650,161 @@ public class AIController extends CarController {
 		return false;
 	}
 	
+
+
+
+
+/////////////////////////////////////////////
+
+
+
+	/*check if turning is ahead, if yes then slow down the car speed*/
+	private boolean CheckTurningAhead(WorldSpatial.Direction orientation, Coordinate currentCoordinate,HashMap<Coordinate, MapTile> currentView ,float delta) {
+		boolean flag = false;
+		Coordinate ahead1;
+		Coordinate ahead2;
+		Coordinate ahead3;
+		switch(orientation){
+		case EAST:
+			ahead1 = new Coordinate(currentCoordinate.x+1, currentCoordinate.y);
+			ahead2 = new Coordinate(currentCoordinate.x+2, currentCoordinate.y);
+			ahead3 = new Coordinate(currentCoordinate.x+3, currentCoordinate.y);
+			if(route.size() > 3) {
+				if(!ahead1.equals(route.get(0)) || !ahead2.equals(route.get(1)) || !ahead3.equals(route.get(2))){
+					flag = true;
+				}
+			}
+			break;
+			
+	
+		case NORTH:
+			ahead1 = new Coordinate(currentCoordinate.x, currentCoordinate.y+1);
+			ahead2 = new Coordinate(currentCoordinate.x, currentCoordinate.y+2);
+			ahead3 = new Coordinate(currentCoordinate.x, currentCoordinate.y+3);
+			if(route.size() > 3) {
+				if(!ahead1.equals(route.get(0)) || !ahead2.equals(route.get(1)) || !ahead3.equals(route.get(2))){
+					flag = true;
+				}
+			}
+			break;
+		case SOUTH:
+			ahead1 = new Coordinate(currentCoordinate.x, currentCoordinate.y-1);
+			ahead2 = new Coordinate(currentCoordinate.x, currentCoordinate.y-2);
+			ahead3 = new Coordinate(currentCoordinate.x, currentCoordinate.y-3);
+			if(route.size() > 3) {
+				if(!ahead1.equals(route.get(0)) || !ahead2.equals(route.get(1)) || !ahead3.equals(route.get(2))){
+					flag = true;
+				}
+			}
+			break;
+	
+		case WEST:
+			ahead1 = new Coordinate(currentCoordinate.x-1, currentCoordinate.y);
+			ahead2 = new Coordinate(currentCoordinate.x-2, currentCoordinate.y);
+			ahead3 = new Coordinate(currentCoordinate.x-3, currentCoordinate.y);
+			if(route.size() > 3) {
+				if(!ahead1.equals(route.get(0)) || !ahead2.equals(route.get(1)) || !ahead3.equals(route.get(2))){
+					flag = true;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	
+		return flag;
+		
+	}
+	
+	/**
+	 * Check if the car is following next coordinate
+	 * @param orientation
+	 * @param currentCoordinate 
+	 * @return
+	 */
+	private boolean checkFollowingCoordinate(WorldSpatial.Direction orientation, Coordinate currentCoordinate) {
+		
+		switch(orientation){
+		case EAST:
+			return checkEast(currentCoordinate);
+		case NORTH:
+			return checkNorth(currentCoordinate);
+		case SOUTH:
+			return checkSouth(currentCoordinate);
+		case WEST:
+			return checkWest(currentCoordinate);
+		default:
+			return false;
+		}
+		
+	}
+	
+	/**
+	 * Method below just iterates through the list and check in the correct coordinates.
+	 * checkEast will check up to next coordinate to the right.
+	 * checkWest will check up to next coordinate to the left.
+	 * checkNorth will check up to next coordinate to the top.
+	 * checkSouth will check up to next coordinate below.
+	 */
+	public boolean checkEast(Coordinate currentCoordinate){
+		// Check tiles to my right
+		Coordinate next = new Coordinate(currentCoordinate.x+1, currentCoordinate.y);
+		if(!route.isEmpty() && route.get(0).equals(next)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public boolean checkWest(Coordinate currentCoordinate){
+		// Check tiles to my left
+		Coordinate next = new Coordinate(currentCoordinate.x-1, currentCoordinate.y);
+		if(!route.isEmpty() && route.get(0).equals(next)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public boolean checkNorth(Coordinate currentCoordinate){
+		// Check tiles to towards the top
+		Coordinate next = new Coordinate(currentCoordinate.x, currentCoordinate.y+1);
+		if(!route.isEmpty() && route.get(0).equals(next)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public boolean checkSouth(Coordinate currentCoordinate){
+		// Check tiles towards the bottom
+		Coordinate next = new Coordinate(currentCoordinate.x, currentCoordinate.y-1);
+		if(!route.isEmpty() && route.get(0).equals(next)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	
+	}
+	/*same function as checkFollowingCoordinate, but in reverse direction*/
+	private boolean checkReverseFollowingCoordinate(WorldSpatial.Direction orientation, Coordinate currentCoordinate) {
+		
+		switch(orientation){
+		case EAST:
+			return checkWest(currentCoordinate);
+		case NORTH:
+			return checkSouth(currentCoordinate);
+		case SOUTH:
+			return checkNorth(currentCoordinate);
+		case WEST:
+			return checkEast(currentCoordinate);
+		default:
+			return false;
+		}
+	}
+
 }

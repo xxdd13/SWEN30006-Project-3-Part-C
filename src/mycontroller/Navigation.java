@@ -1,6 +1,7 @@
 package mycontroller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -19,6 +20,8 @@ public class Navigation {
 	IPathFinder pathfinder;
 	List<Coordinate> lavas = new ArrayList<>();
 	List<Coordinate> healths = new ArrayList<>();
+	Coordinate[] keys = new Coordinate[4];
+	List<Coordinate>keyList = new ArrayList<>();
 	public List<Coordinate> visited = new ArrayList<>();
 	
 	public Navigation(HashMap<Coordinate, MapTile> map, IPathFinder pathfinder,List<Coordinate> visitedList) {
@@ -35,6 +38,8 @@ public class Navigation {
 				finish.add(k);
 			}
 			if (v instanceof LavaTrap) {
+				int keyNum =((LavaTrap) v).getKey();
+				if( keyNum>0) keys[keyNum-1]=k;
 				lavas.add(k);
 			}
 			if (v instanceof HealthTrap) {
@@ -72,24 +77,19 @@ public class Navigation {
 		        }
 		    }
 		}
+		
+		
 		Collections.sort(lavas, new CoordComparatorXY());
 		//Collections.sort(lavas, new CoordComparatorYX());
+		keyList = Arrays.asList(keys);
 		
 	}
 	
 	
-	public List<Coordinate> planRoute(Coordinate location) {
-		List<Coordinate> target = new ArrayList<Coordinate>();
-
-		//没踩过的作为目标
-		for (Coordinate c : lavas) {
-		    if (!visited.contains(c)) {
-		    		target.add(c);
-		    		break;		    
-		    }	    
-		}
+	public List<Coordinate> planRoute(Coordinate location, Coordinate targetLocation) {
+		List<Coordinate> target = Arrays.asList(targetLocation);
 		
-		System.out.println("new target: "+target);
+		System.out.println("new target: "+target+ "                currently at "+location);
 		route = pathfinder.planRoute(location, target, map);
 		return route;
 	}
@@ -109,7 +109,7 @@ public class Navigation {
 			}
 		}
 		if (replan == true) {
-			route = planRoute(location);
+			route = planRoute(location, location);
 		}
 		return replan;	
 	}

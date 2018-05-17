@@ -179,7 +179,7 @@ public class World {
 				int reverseYAxis = MAP_HEIGHT-coord.y;
 				Coordinate newCoord = new Coordinate(coord.x, reverseYAxis);
 				MapTile current = mapTiles.get(coord);
-				//if (current.isType(MapTile.Type.TRAP)) current = new MapTile(MapTile.Type.ROAD);
+				if (current.isType(MapTile.Type.TRAP)) current = new MapTile(MapTile.Type.ROAD);
 				providedMapTiles.put(newCoord, current);
 			}
 		}
