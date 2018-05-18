@@ -167,8 +167,7 @@ public class AIController extends CarController {
 				if(finishedReverse) {
 					applyForwardAcceleration();
 				}
-				/*if car is not going back then speed up until car speed limit*/
-				if(getSpeed() < CAR_SPEED && !reversing){
+				else if(getSpeed() < CAR_SPEED && !reversing){
 					applyForwardAcceleration();
 				}
 				if(needGoNorth(currentCoordinate)){//should go to north
@@ -245,7 +244,7 @@ public class AIController extends CarController {
 					}
 				}
 				else if(needGoEast(currentCoordinate)) {
-					//System.out.println("checking east                current direction:"+getOrientation());
+					System.out.println("checking east                current direction:"+getOrientation());
 					
 					if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
@@ -254,7 +253,6 @@ public class AIController extends CarController {
 					else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 						applyRightTurn(getOrientation(),delta);
-						
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.WEST)){
 						
@@ -331,18 +329,17 @@ public class AIController extends CarController {
 					applyLeftTurn(getOrientation(),delta);
 				}
 				else if(reversing) {
-					
-					if(turnPref.equals("left")) {
+					applyForwardAcceleration();
+					if(turnPref.equals("right")) {
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-						applyLeftTurn(getOrientation(), delta*3);
+						applyLeftTurn(getOrientation(), delta*2);
 					}else {
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-						applyRightTurn(getOrientation(), delta*3);
+						applyRightTurn(getOrientation(), delta*2);
 					}
 					applyReverseAcceleration();
 					
 					if(Math.abs(getAngle()-uTurnAngle)<5 || (uTurnAngle==0 && (getAngle()-uTurnAngle)<5 )|| (uTurnAngle==0 && (360-getAngle()<5) )) {
-						
 						finishedReverse = true;
 						reversing = false;
 						onTrack = false;
@@ -354,7 +351,7 @@ public class AIController extends CarController {
 				
 				
 
-				else if(!reversing&& checkFollowingCoordinate(getOrientation(),currentCoordinate)){
+				else if( checkFollowingCoordinate(getOrientation(),currentCoordinate)){
 					
 					
 					finishedReverse = false;
