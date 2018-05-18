@@ -39,7 +39,7 @@ public class AIController extends CarController {
 	private final float FINAL_CAR_SPEED =(float) 3;
 	private float CAR_SPEED = FINAL_CAR_SPEED;
 	private float BREAK_THRESHOLD = (float) 0.03;
-	private float CAR_SPEED_THRESHOLD1 = (float) 1;
+	private float CAR_SPEED_THRESHOLD1 = (float) 1.0;
 	private float CAR_SPEED_THRESHOLD2 = (float) 1.1;
 	private float CHANGE_AHEAD_SPEED = (float) 1.4;
 	private int totalKeys;
@@ -51,8 +51,7 @@ public class AIController extends CarController {
 	private List<Coordinate> visited = new ArrayList<>();
 	private boolean halting = false;// default not stopped for heal
 	HashMap<Coordinate, MapTile> map = getMap();
-	private int uTurnAngle = 0;
-	private String turnPref;
+
 	/////////////////////
 	
 	public Coordinate[] keyList = new Coordinate[getKey()-1];
@@ -113,7 +112,7 @@ public class AIController extends CarController {
 		MapTile currentTile = currentView.get(currentCoordinate);
 		
 		//testOnly , jump straight to pathfind
-		boolean test = false;
+		boolean test = true;
 		if(test){
 			keyList[0] = new Coordinate("23,15");
 			keyList[1] = new Coordinate("16,13");
@@ -144,7 +143,7 @@ public class AIController extends CarController {
 				path = navigation.planRoute(currentCoordinate, null);			
 			}
 			if(currentTile instanceof HealthTrap ){
-				if(getHealth()<100) { //stop to heal
+				if(getHealth()<90) { //stop to heal
 					applyBrake();
 					halting = true;
 					System.out.println("Halt !!!!!!!!!!!!!!");
@@ -156,6 +155,7 @@ public class AIController extends CarController {
 			}
 			
 			checkStateChange();
+			
 			
 			//car not stopped and not waiting for heal to finish
 			if(!onTrack && !halting) {
@@ -185,7 +185,8 @@ public class AIController extends CarController {
 						}
 						else if(!checkEast(currentView)) {
 							Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y);
-							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
+							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
+							
 						}
 					}
 					
@@ -219,10 +220,7 @@ public class AIController extends CarController {
 							Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y);
 							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
 						}
-						
-						
-						
-						
+	
 					}
 					
 					else{
@@ -235,7 +233,7 @@ public class AIController extends CarController {
 					
 					if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-						applyLeftTurn(getOrientation(),delta*2);
+						applyLeftTurn(getOrientation(),delta);
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
 						//applyForwardAcceleration();
@@ -302,7 +300,7 @@ public class AIController extends CarController {
 			
 			// CAR IS ON TRACK
 			else {
-				//preventCornerCollision(getOrientation(),currentCoordinate, delta);
+				preventCornerCollision(getOrientation(),currentCoordinate, delta);
 				readjust(lastTurnDirection,delta);
 				if(isTurningRight){
 					applyRightTurn(getOrientation(),delta);
@@ -322,7 +320,6 @@ public class AIController extends CarController {
 						}
 						else if(CAR_SPEED < CAR_SPEED_THRESHOLD2){
 							applyForwardAcceleration();
-							
 						}
 					}
 					/*if there is no turn ahead, remain original car speed*/
@@ -332,7 +329,7 @@ public class AIController extends CarController {
 					}
 					
 				}
-				/*if not following coordinate,switch to top function*/
+				
 				else if(!checkFollowingCoordinate(getOrientation(),currentCoordinate)){
 					onTrack = false;
 					CAR_SPEED = CHANGE_AHEAD_SPEED;
@@ -719,8 +716,8 @@ public class AIController extends CarController {
 			ahead2 = new Coordinate(currentCoordinate.x+2, currentCoordinate.y);
 			ahead3 = new Coordinate(currentCoordinate.x+3, currentCoordinate.y);
 			
-			if(path.size() > 2) {
-				if(!ahead1.equals(path.get(0)) || !ahead2.equals(path.get(1))){
+			if(path.size() > 3) {
+				if(!ahead1.equals(path.get(0)) || !ahead2.equals(path.get(1))	|| !ahead3.equals(path.get(2))){
 					flag = true;
 				}
 			}
@@ -900,7 +897,7 @@ public class AIController extends CarController {
 	public boolean needGoEast(Coordinate currentCoordinate){
 		// Check tiles to my right
 		
-		Coordinate next = new Coordinate(currentCoordinate.x, currentCoordinate.y);
+		Coordinate next = new Coordinate(currentCoordinate.x+1, currentCoordinate.y);
 		if(!path.isEmpty() && path.get(0).equals(next)) {
 			return true;
 		}
