@@ -6,7 +6,6 @@ import java.util.List;
 
 import mycontroller.DijkstraPathFinder;
 import mycontroller.HealthNavigation;
-import mycontroller.LavaNavigation;
 import mycontroller.Navigation;
 import tiles.HealthTrap;
 import tiles.LavaTrap;
