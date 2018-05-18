@@ -16,10 +16,9 @@ public class HealthNavigation extends Navigation{
 	List<Coordinate> healths = new ArrayList<>();
 
 	
-	public HealthNavigation(HashMap<Coordinate, MapTile> map, IPathFinder pathfinder,List<Coordinate> visitedList) {
+	public HealthNavigation(HashMap<Coordinate, MapTile> map, IPathFinder pathfinder) {
 		
-		super(map, pathfinder,visitedList);
-		this.healths = super.healths;
+		super(map, pathfinder);
 		
 	}
 	private float calcDistance(Coordinate c1, Coordinate c2) {
@@ -28,8 +27,7 @@ public class HealthNavigation extends Navigation{
 	}
 	@Override
 	public List<Coordinate> planRoute(Coordinate location, Coordinate targetLocation) {
-		
-		
+
 		//sort by distance to car, find the closest one
 		class HealthTrapComparator implements Comparator<Coordinate> {
 		    @Override
@@ -45,15 +43,23 @@ public class HealthNavigation extends Navigation{
 		        }
 		    }
 		}
-		//System.out.println("before sorting : "+this.healths);
-		Collections.sort(this.healths, new HealthTrapComparator());
-		//System.out.println("after  sorting : "+this.healths);
-		List<Coordinate> healthTarget = new ArrayList<>();
-		healthTarget.add(this.healths.get(0)); 
 		
-		System.out.println("HEALING ! new target: "+healthTarget  + "                currently at "+location);
-		route = pathfinder.planRoute(location, healthTarget, super.map);
+		//Collections.sort(this.healths, new HealthTrapComparator());
+
+		List<Coordinate> healthTarget = new ArrayList<>();
+		//healthTarget.add(this.healths.get(0)); 
+		
+		
+		
+		System.out.println("HEALING !                currently at "+location);
+		
+		route = pathfinder.planRoute(location, this.healths, super.map);
+		
 		return route;
+	}
+	public void addHealthSpot(Coordinate c) {
+		//only adds if it doesn't have it
+		if (!this.healths.contains(c))this.healths.add(c);
 	}
 	
 }

@@ -26,7 +26,8 @@ public class TileCostPool {
 		return instance;
 	}
 	
-	public ITileCost getTileCost(MapTile tile) {
+	public ITileCost getTileCost(MapTile tile) 
+	{
 		return pool.get(tile.getClass());
 	}
 

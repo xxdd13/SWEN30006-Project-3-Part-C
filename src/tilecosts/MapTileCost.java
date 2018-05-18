@@ -14,7 +14,7 @@ public class MapTileCost implements ITileCost {
 	@Override
 	public double getCost(Node node, HashMap<Coordinate, MapTile> map) {
 		if (!map.get(node.coordinate).isType(MapTile.Type.WALL)) {
-			return 1;
+			return 2;
 		}
 		return Double.POSITIVE_INFINITY;
 	}

@@ -12,9 +12,9 @@ import tiles.MapTile;
 import utilities.Coordinate;
 
 public class LavaNavigation extends Navigation {
-	public LavaNavigation(HashMap<Coordinate, MapTile> map, IPathFinder pathfinder,List<Coordinate> visitedList) {
+	public LavaNavigation(HashMap<Coordinate, MapTile> map, IPathFinder pathfinder) {
 		
-		super(map,pathfinder,visitedList);
+		super(map,pathfinder);
 		
 	}
 	

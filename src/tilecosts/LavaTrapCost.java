@@ -15,7 +15,7 @@ public class LavaTrapCost implements ITileCost {
 	@Override
 	public double getCost(Node node, HashMap<Coordinate, MapTile> map) {
 		// TODO Auto-generated method stub
-		return 2;
+		return 10;
 	}
 
 }
