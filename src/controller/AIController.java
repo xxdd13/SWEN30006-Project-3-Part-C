@@ -41,7 +41,7 @@ public class AIController extends CarController {
 	private float BREAK_THRESHOLD = (float) 0.03;
 	private float CAR_SPEED_THRESHOLD1 = (float) 1.0;
 	private float CAR_SPEED_THRESHOLD2 = (float) 1.1;
-	private float CHANGE_AHEAD_SPEED = (float) 1.4;
+	private float CHANGE_AHEAD_SPEED = (float) 1.1;
 	private int totalKeys;
 	private int currentKey;
 	Navigation navigation;
@@ -166,14 +166,16 @@ public class AIController extends CarController {
 				if(needGoNorth(currentCoordinate)){//should go to north
 					
 					if(getOrientation().equals(WorldSpatial.Direction.EAST)){
+						applyReverseAcceleration();
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-						applyLeftTurn(getOrientation(),delta);
+						applyRightTurn(getOrientation(),delta);
 						
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.WEST)){
 						
+						applyReverseAcceleration();
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-						applyRightTurn(getOrientation(),delta);
+						applyLeftTurn(getOrientation(),delta);
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
 						if(!checkWest(currentView)) {
@@ -197,12 +199,14 @@ public class AIController extends CarController {
 					//System.out.println("checking south               current direction:"+getOrientation());
 					
 					if(getOrientation().equals(WorldSpatial.Direction.WEST)){
+						applyReverseAcceleration();
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-						applyLeftTurn(getOrientation(),delta);
+						applyRightTurn(getOrientation(),delta);
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.EAST)){
+						applyReverseAcceleration();
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-						applyRightTurn(getOrientation(),delta);
+						applyLeftTurn(getOrientation(),delta);
 						
 						
 					}
@@ -236,15 +240,17 @@ public class AIController extends CarController {
 					//System.out.println("checking east                current direction:"+getOrientation());
 					
 					if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
-						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-						applyLeftTurn(getOrientation(),delta);
+						applyReverseAcceleration();
+						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+						applyRightTurn(getOrientation(),delta);
 						
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
 						//applyForwardAcceleration();
 						
-						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-						applyRightTurn(getOrientation(),delta);
+						applyReverseAcceleration();
+						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+						applyLeftTurn(getOrientation(),delta);
 						
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.WEST)){
@@ -276,13 +282,15 @@ public class AIController extends CarController {
 					
 					
 					if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
-						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-						applyLeftTurn(getOrientation(),delta);
+						applyReverseAcceleration();
+						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+						applyRightTurn(getOrientation(),delta);
 						
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
-						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-						applyRightTurn(getOrientation(),delta);
+						applyReverseAcceleration();
+						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+						applyLeftTurn(getOrientation(),delta);
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.EAST)){
 						
@@ -290,11 +298,11 @@ public class AIController extends CarController {
 						
 						if(!checkNorth(currentView)) {
 							
-							Coordinate newCoordinate = new Coordinate(currentCoordinate.x,currentCoordinate.y+1);
+							Coordinate newCoordinate = new Coordinate(currentCoordinate.x+1,currentCoordinate.y+1);
 							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
 						}
 						else if(!checkSouth(currentView)) {
-							Coordinate newCoordinate = new Coordinate(currentCoordinate.x,currentCoordinate.y-1);
+							Coordinate newCoordinate = new Coordinate(currentCoordinate.x+1,currentCoordinate.y-1);
 							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
 						}
 						
@@ -728,10 +736,14 @@ public class AIController extends CarController {
 			ahead2 = new Coordinate(currentCoordinate.x+2, currentCoordinate.y);
 			ahead3 = new Coordinate(currentCoordinate.x+3, currentCoordinate.y);
 			
-			if(path.size() > 3) {
-				if(!ahead1.equals(path.get(0)) || !ahead2.equals(path.get(1))	|| !ahead3.equals(path.get(2))){
+			if(path.size() > 1) {
+				if(!ahead1.equals(path.get(0)) || !ahead2.equals(path.get(1))){
 					flag = true;
 				}
+			}else if(path.size() > 0){
+				if(!ahead1.equals(path.get(0)) ){
+					flag = true;
+				}	
 			}
 			break;
 			
@@ -740,20 +752,28 @@ public class AIController extends CarController {
 			ahead1 = new Coordinate(currentCoordinate.x, currentCoordinate.y+1);
 			ahead2 = new Coordinate(currentCoordinate.x, currentCoordinate.y+2);
 			ahead3 = new Coordinate(currentCoordinate.x, currentCoordinate.y+3);
-			if(path.size() > 3) {
-				if(!ahead1.equals(path.get(0)) || !ahead2.equals(path.get(1))	|| !ahead3.equals(path.get(2))){
+			if(path.size() > 1) {
+				if(!ahead1.equals(path.get(0)) || !ahead2.equals(path.get(1))){
 					flag = true;
 				}
+			}else if(path.size() > 0){
+				if(!ahead1.equals(path.get(0)) ){
+					flag = true;
+				}	
 			}
 			break;
 		case SOUTH:
 			ahead1 = new Coordinate(currentCoordinate.x, currentCoordinate.y-1);
 			ahead2 = new Coordinate(currentCoordinate.x, currentCoordinate.y-2);
 			ahead3 = new Coordinate(currentCoordinate.x, currentCoordinate.y-3);
-			if(path.size() > 3) {
-				if(!ahead1.equals(path.get(0)) || !ahead2.equals(path.get(1))	|| !ahead3.equals(path.get(2))){
+			if(path.size() > 1) {
+				if(!ahead1.equals(path.get(0)) || !ahead2.equals(path.get(1))){
 					flag = true;
 				}
+			}else if(path.size() > 0){
+				if(!ahead1.equals(path.get(0)) ){
+					flag = true;
+				}	
 			}
 			break;
 	
@@ -761,10 +781,14 @@ public class AIController extends CarController {
 			ahead1 = new Coordinate(currentCoordinate.x-1, currentCoordinate.y);
 			ahead2 = new Coordinate(currentCoordinate.x-2, currentCoordinate.y);
 			ahead3 = new Coordinate(currentCoordinate.x-3, currentCoordinate.y);
-			if(path.size() > 3) {
-				if(!ahead1.equals(path.get(0)) || !ahead2.equals(path.get(1))	|| !ahead3.equals(path.get(2))){
+			if(path.size() > 1) {
+				if(!ahead1.equals(path.get(0)) || !ahead2.equals(path.get(1))){
 					flag = true;
 				}
+			}else if(path.size() > 0){
+				if(!ahead1.equals(path.get(0)) ){
+					flag = true;
+				}	
 			}
 			break;
 		default:
