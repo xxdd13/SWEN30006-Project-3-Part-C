@@ -32,12 +32,9 @@ public class AIController extends CarController {
 	// Car Speed to move at
 	//private final float CAR_SPEED = 3;
 	
-
+	// Offset used to differentiate between 0 and 360 degrees
 	private int EAST_THRESHOLD = 3;
 	
-	/////////////////////
-	private boolean reversing = false;
-	private boolean finishedReverse = false;
 	private boolean onTrack = false;
 	private final float FINAL_CAR_SPEED =(float) 3;
 	private float CAR_SPEED = FINAL_CAR_SPEED;
@@ -139,9 +136,8 @@ public class AIController extends CarController {
 					path.remove(0);
 				}
 				
-				
 			}
-			if(getHealth()<58 && navigation.getClass()!=healthNavigation.getClass() &&!reversing) {
+			if(getHealth()<58 && navigation.getClass()!=healthNavigation.getClass()) {
 				System.out.println("finding heal !!!!!!!!!!!!!!");
 				navigation =healthNavigation;	
 				navigation.updateMap(map);
@@ -163,13 +159,12 @@ public class AIController extends CarController {
 			
 			//car not stopped and not waiting for heal to finish
 			if(!onTrack && !halting) {
+				/*if car is not going back then speed up until car speed limit*/
+				if(getSpeed() < CAR_SPEED ){
+					applyForwardAcceleration();
+				}
 				
-				if(finishedReverse) {
-					applyForwardAcceleration();
-				}
-				else if(getSpeed() < CAR_SPEED && !reversing){
-					applyForwardAcceleration();
-				}
+				
 				if(needGoNorth(currentCoordinate)){//should go to north
 					
 					if(getOrientation().equals(WorldSpatial.Direction.EAST)){
@@ -183,20 +178,15 @@ public class AIController extends CarController {
 						applyRightTurn(getOrientation(),delta);
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
-						System.out.println("U turn south -> north");
-						uTurnAngle = 90;
-						if(getSpeed() >BREAK_THRESHOLD) {
-							applyBrake();
-						}
-						reversing = true;
-						onTrack = true;
-						
 						if(!checkWest(currentView)) {
-							turnPref = "right";
+							Coordinate newCoordinate = new Coordinate(currentCoordinate.x+1,currentCoordinate.y);
+							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
+							
 						}
-						else  {
-							turnPref = "left";
-						}	
+						else if(!checkEast(currentView)) {
+							Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y);
+							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
+						}
 					}
 					
 					
@@ -220,19 +210,16 @@ public class AIController extends CarController {
 					else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
 						System.out.println("U turn ! north -> south");
 						
-						uTurnAngle = 270;
-						if(getSpeed() >BREAK_THRESHOLD) {
-							applyBrake();
+						if(!checkEast(currentView)) {
+							Coordinate newCoordinate = new Coordinate(currentCoordinate.x+1,currentCoordinate.y);
+							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
+							
 						}
-						reversing = true;
-						onTrack = true;
+						else if(!checkWest(currentView)) {
+							Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y);
+							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
+						}
 						
-						if(!checkWest(currentView)) {
-							turnPref = "left";
-						}
-						else  {
-							turnPref = "right";
-						}
 						
 						
 						
@@ -248,28 +235,27 @@ public class AIController extends CarController {
 					
 					if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-						applyLeftTurn(getOrientation(),delta);
+						applyLeftTurn(getOrientation(),delta*2);
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
+						//applyForwardAcceleration();
+						
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 						applyRightTurn(getOrientation(),delta);
+						
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.WEST)){
 						
 						System.out.println("U turn west ->  east");
 						
-						uTurnAngle = 0;
-						if(getSpeed() >BREAK_THRESHOLD) {
-							applyBrake();
-						}
-						reversing = true;
-						onTrack = true;
-						
 						if(!checkNorth(currentView)) {
-							turnPref = "right";
+							Coordinate newCoordinate = new Coordinate(currentCoordinate.x,currentCoordinate.y+1);
+							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
+							
 						}
-						else  {
-							turnPref = "left";
+						else if(!checkSouth(currentView)) {
+							Coordinate newCoordinate = new Coordinate(currentCoordinate.x,currentCoordinate.y-1);
+							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
 						}
 						
 					}
@@ -296,18 +282,14 @@ public class AIController extends CarController {
 						
 						System.out.println("U turn east -> west ");
 						
-						uTurnAngle = 180;
-						if(getSpeed() >BREAK_THRESHOLD) {
-							applyBrake();
-						}
-						reversing = true;
-						onTrack = true;
-						
 						if(!checkNorth(currentView)) {
-							turnPref = "left";
+							
+							Coordinate newCoordinate = new Coordinate(currentCoordinate.x,currentCoordinate.y+1);
+							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
 						}
-						else  {
-							turnPref = "right";
+						else if(!checkSouth(currentView)) {
+							Coordinate newCoordinate = new Coordinate(currentCoordinate.x,currentCoordinate.y-1);
+							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
 						}
 					}
 					
@@ -328,33 +310,9 @@ public class AIController extends CarController {
 				else if(isTurningLeft){
 					applyLeftTurn(getOrientation(),delta);
 				}
-				else if(reversing) {
-					applyForwardAcceleration();
-					if(turnPref.equals("right")) {
-						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-						applyLeftTurn(getOrientation(), delta*2);
-					}else {
-						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-						applyRightTurn(getOrientation(), delta*2);
-					}
-					applyReverseAcceleration();
-					
-					if(Math.abs(getAngle()-uTurnAngle)<5 || (uTurnAngle==0 && (getAngle()-uTurnAngle)<5 )|| (uTurnAngle==0 && (360-getAngle()<5) )) {
-						finishedReverse = true;
-						reversing = false;
-						onTrack = false;
-						path = navigation.planRoute(new Coordinate(this.getPosition()), keyList[getKey()-2]);
-							
-					}
-					
-				}
-				
 				
 
 				else if( checkFollowingCoordinate(getOrientation(),currentCoordinate)){
-					
-					
-					finishedReverse = false;
 					/*check if next 3 coordinate in path, if there is change in front then slow down*/
 					if(CheckTurningAhead(getOrientation(),currentCoordinate,currentView, delta)) {
 						
@@ -985,22 +943,6 @@ public class AIController extends CarController {
 		}
 	
 	}
-	/*same function as checkFollowingCoordinate, but in reverse direction*/
-	private boolean checkReverseFollowingCoordinate(WorldSpatial.Direction orientation, Coordinate currentCoordinate) {
-		
-		switch(orientation){
-		case EAST:
-			return needGoWest(currentCoordinate);
-		case NORTH:
-			return needGoSouth(currentCoordinate);
-		case SOUTH:
-			return needGoNorth(currentCoordinate);
-		case WEST:
-			return needGoEast(currentCoordinate);
-		default:
-			return false;
-		}
-	}
 	
-
+	
 }
