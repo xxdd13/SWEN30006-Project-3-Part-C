@@ -153,11 +153,18 @@ public class AIController extends CarController {
 			if(currentTile instanceof HealthTrap ){
 				if(getHealth()<95) { //stop to heal
 					applyBrake();
-					halting = true;
-					System.out.println("Halt !!!!!!!!!!!!!!");
+					if(!halting) {
+						
+						halting = true;
+						System.out.println("Halt !!!!!!!!!!!!!!");
+					}
+					
 				}
 				else { //ready to go
-					halting=false;
+					if(halting) {
+						halting=false;
+					}
+					
 					navigation =new Navigation(this.map, new DijkstraPathFinder());;	
 				}
 			}
@@ -187,12 +194,7 @@ public class AIController extends CarController {
 						
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.WEST)){
-						
-						//applyReverseAcceleration();
-						//lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-						//applyLeftTurn(getOrientation(),delta);
-						
-						
+
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 						applyRightTurn(getOrientation(),delta);
 						
@@ -214,30 +216,14 @@ public class AIController extends CarController {
 					
 					else{
 						
+						onTrack = true;
 						
-						
-						
+						/*
 						if (getSpeed()<=STUCK_THRESHOLD) {
 							System.out.println("stuck ");
 							onTrack = false;
 							
 							if(!checkWest(currentView)) {
-								//|                           |
-								//|###############            |
-								//|###############            |
-								//|###############            |
-								//|###############            |
-								//|               []          |
-								//|                           |
-								//|                           |
-								System.out.println("nstuck west ");
-								Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y);
-								path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
-												
-								
-								
-							}
-							if(!checkEast(currentView)) {
 								//|                           |
 								//|            ###############|
 								//|            ###############|
@@ -246,15 +232,38 @@ public class AIController extends CarController {
 								//|          []               |
 								//|                           |
 								//|                           |
-								System.out.println("nstuck east ");
-								Coordinate newCoordinate = new Coordinate(currentCoordinate.x+1,currentCoordinate.y);
-								path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
+								System.out.println("nstuck , go west ");
+								//Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y);
+								//path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
+								
+								applyReverseAcceleration();
+								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+								applyRightTurn(getOrientation(),delta);
+								Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y);
+								path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);					
+							}
+							if(!checkEast(currentView)) {
+								
+								//|                           |
+								//|###############            |
+								//|###############            |
+								//|###############            |
+								//|###############            |
+								//|               []          |
+								//|                           |
+								//|                           |
+								
+								
+								//System.out.println("nstuck ,go east ");
+								//Coordinate newCoordinate = new Coordinate(currentCoordinate.x+1,currentCoordinate.y);
+								//path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
 								
 							}
 							//preventCornerCollision(getOrientation(),currentCoordinate, delta);
 							
 													
 						}
+						*/
 						
 						
 					}
@@ -303,11 +312,9 @@ public class AIController extends CarController {
 					}
 					
 					else{
-						
-						
+				
 						onTrack = true;
-						
-						
+
 					}
 				}
 				else if(needGoEast(currentCoordinate)) {
