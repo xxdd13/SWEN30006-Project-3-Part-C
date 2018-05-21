@@ -448,30 +448,6 @@ public class AIController extends CarController {
 				//preventCornerCollision(getOrientation(),currentCoordinate, delta);
 				
 				
-				////////////////////////////////////////////////////////////
-				/////////////
-				//////////// HELP!
-				///////////it detects stuck, but unable to make a turn
-				//////////
-				///////////////////////////////////////////////////////////
-				if(getSpeed()<STUCK_THRESHOLD) {
-					if(checkCorner(currentCoordinate,getOrientation())==-1){
-						applyReverseAcceleration();
-						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-						System.out.println("test RIGHT");
-						applyLeftTurn(getOrientation(),delta);
-						
-					
-					}
-					else if(checkCorner(currentCoordinate,getOrientation())==1){
-						applyReverseAcceleration();
-						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-						System.out.println("test LEFT");
-						applyRightTurn(getOrientation(),delta);
-						
-						
-					}
-				}
 				
 				readjust(lastTurnDirection,delta);
 				if(isTurningRight){
@@ -483,7 +459,7 @@ public class AIController extends CarController {
 					
 				}
 				
-
+				
 				else if( needMove(getOrientation(),currentCoordinate)){
 					/*check if next 3 coordinate in path, if there is change in front then slow down*/
 					if(needTurn(getOrientation(),currentCoordinate,currentView, delta)) {
@@ -515,6 +491,33 @@ public class AIController extends CarController {
 				else if(!needMove(getOrientation(),currentCoordinate)){
 					onTrack = false;
 					CAR_SPEED = CHANGE_AHEAD_SPEED;
+				}
+
+				////////////////////////////////////////////////////////////
+				/////////////
+				//////////// HELP!
+				///////////it detects stuck, but unable to make a turn
+				//////////
+				///////////////////////////////////////////////////////////
+				if(getSpeed()<STUCK_THRESHOLD) {
+					if(checkCorner(currentCoordinate,getOrientation())==-1){
+						
+						//when speed is 0 or almost 0, applyLeftTurn does not work
+						//need reverse turn in opposite direction
+						applyReverseAcceleration();
+						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+						applyLeftTurn(getOrientation(),delta);
+						
+					
+					}
+					else if(checkCorner(currentCoordinate,getOrientation())==1){
+						applyReverseAcceleration();
+						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+						applyRightTurn(getOrientation(),delta);
+						System.out.println("turn LEFT to unstuck");
+						
+						
+					}
 				}
 			
 			}
