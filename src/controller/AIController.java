@@ -213,22 +213,8 @@ public class AIController extends CarController {
 					
 					
 					else{
-						System.out.println("wall head"+ checkCorner(currentCoordinate,getOrientation()));
+						onTrack = true;
 						
-						if (checkCorner(currentCoordinate,getOrientation())==0) {
-							onTrack = true;
-						}
-						else if(checkCorner(currentCoordinate,getOrientation())==-1){
-							lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-							applyLeftTurn(getOrientation(),delta);
-							
-							onTrack = false;
-						}
-						else if(checkCorner(currentCoordinate,getOrientation())==1){
-							lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-							applyRightTurn(getOrientation(),delta);
-							onTrack = false;
-						}
 						
 						
 						/*
@@ -367,7 +353,7 @@ public class AIController extends CarController {
 					else{
 						onTrack = true;
 						
-						
+						/*
 						if (getSpeed()<STUCK_THRESHOLD) {
 							System.out.println("slow");
 							if(!checkNorth(currentView)) {
@@ -393,6 +379,7 @@ public class AIController extends CarController {
 							applyForwardAcceleration();
 							
 						}
+						*/
 						
 						
 						
