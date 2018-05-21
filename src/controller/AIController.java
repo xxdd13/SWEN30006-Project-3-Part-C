@@ -154,7 +154,6 @@ public class AIController extends CarController {
 				if(getHealth()<95) { //stop to heal
 					applyBrake();
 					if(!halting) {
-						
 						halting = true;
 						System.out.println("Halt !!!!!!!!!!!!!!");
 					}

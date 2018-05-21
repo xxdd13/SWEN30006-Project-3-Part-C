@@ -6,9 +6,9 @@ import mycontroller.Node;
 import tiles.MapTile;
 import utilities.Coordinate;
 
-public class LavaTrapCost implements ITileWeight {
+public class LavaWeight implements ITileWeight {
 
-	public LavaTrapCost() {
+	public LavaWeight() {
 		// TODO Auto-generated constructor stub
 	}
 

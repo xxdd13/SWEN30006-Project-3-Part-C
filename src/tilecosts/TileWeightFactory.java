@@ -15,9 +15,9 @@ public class TileWeightFactory {
 	
 	public void initiliazePool() {
 		pool = new HashMap<>();
-		pool.put((new MapTile(MapTile.Type.ROAD)).getClass(), new MapTileCost());
-		pool.put((new LavaTrap()).getClass(), new LavaTrapCost());
-		pool.put((new HealthTrap()).getClass(), new HealthTileCost());
+		pool.put((new MapTile(MapTile.Type.ROAD)).getClass(), new MapTileWeight());
+		pool.put((new LavaTrap()).getClass(), new LavaWeight());
+		pool.put((new HealthTrap()).getClass(), new HealthWeight());
 	}
 	
 	public static TileWeightFactory getInstance() {
