@@ -74,6 +74,7 @@ public class AIController extends CarController {
 		return true;
 	}
 	private void updateMap(HashMap<Coordinate, MapTile> view){
+		
         for (HashMap.Entry<Coordinate, MapTile> entry: view.entrySet()) {
         	 if(entry.getValue().equals(map.get(entry.getKey()))) {
                  map.remove(entry.getKey());
@@ -113,13 +114,14 @@ public class AIController extends CarController {
 	@Override
 	public void update(float delta) {
 		
+		
 		// Gets what the car can see
 		HashMap<Coordinate, MapTile> currentView = getView();
 		Coordinate currentCoordinate = new Coordinate(this.getPosition());
 		MapTile currentTile = currentView.get(currentCoordinate);
 		
 		//testOnly , jump straight to pathfind
-		boolean test = true;
+		boolean test = false;
 		if(test){
 			keyList[0] = new Coordinate("23,15");
 			keyList[1] = new Coordinate("16,13");
@@ -188,6 +190,7 @@ public class AIController extends CarController {
 					
 					if(getOrientation().equals(WorldSpatial.Direction.EAST)){
 						//applyReverseAcceleration();
+						
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 						applyLeftTurn(getOrientation(),delta);
 						
@@ -319,10 +322,14 @@ public class AIController extends CarController {
 				else if(needGoEast(currentCoordinate)) {
 					System.out.println("checking east                current direction:"+getOrientation()+" "+getAngle() +"        "+getSpeed());
 					if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
+						
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 						applyLeftTurn(getOrientation(),delta);
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
+						if(getY()<(float)(path.get(0).y)) {
+							applyForwardAcceleration();
+						}
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 						applyRightTurn(getOrientation(),delta);
 					}
@@ -372,10 +379,21 @@ public class AIController extends CarController {
 				else if(needGoWest(currentCoordinate)) {
 					System.out.println("checking west 		 current direction:"+getOrientation()+" "+getAngle() + "        "+getSpeed());
 					if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
+						System.out.println("1111111111    "+peek(getVelocity(),90,WorldSpatial.RelativeDirection.RIGHT,delta).getCoordinate()
+								+"      "+getX()+"  "+getY());
+						if(getX()>(float)(path.get(0).x)) {
+							applyForwardAcceleration();
+						}
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 						applyLeftTurn(getOrientation(),delta);
+						
+						
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
+						if(getX()<(float)(path.get(0).x)) {
+							applyForwardAcceleration();
+						}
+						
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 						applyRightTurn(getOrientation(),delta);
 					}
