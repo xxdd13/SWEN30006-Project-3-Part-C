@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import tilecosts.ITileCost;
-import tilecosts.TileCostPool;
+import tilecosts.ITileWeight;
+import tilecosts.TileWeightFactory;
 import tiles.MapTile;
 import utilities.Coordinate;
 
@@ -40,14 +40,14 @@ public class DijkstraPathFinder implements IPathFinder {
 			}
 			// expand current
 			current.getChildren().forEach(child -> {
-				setNodeCost(child, map);
-				if (child.cost < Double.POSITIVE_INFINITY) {
+				setWeight(child, map);
+				if (child.weight < Double.POSITIVE_INFINITY) {
 				if (!expanded.containsKey(child.coordinate)) {
 					expanded.put(child.coordinate, child);
 					frontier.add(child);
 				}
 				else if (expanded.get(child.coordinate).traversed == false) {
-					if (child.cost < expanded.get(child.coordinate).cost) {
+					if (child.weight < expanded.get(child.coordinate).weight) {
 						frontier.remove(expanded.get(child.coordinate));
 						frontier.add(child);
 						expanded.remove(child.coordinate);
@@ -68,10 +68,10 @@ public class DijkstraPathFinder implements IPathFinder {
 		return path;
 	}
 	
-	public void setNodeCost(Node node, HashMap<Coordinate, MapTile> map) {
+	public void setWeight(Node node, HashMap<Coordinate, MapTile> map) {
 		MapTile tile = map.get(node.coordinate);
-		ITileCost tileCost = TileCostPool.getInstance().getTileCost(tile);
-		node.setCost(tileCost.getCost(node, map) + node.parent.cost);
+		ITileWeight weights = TileWeightFactory.getInstance().getWeight(tile);
+		node.setCost(weights.getWeight(node, map) + node.parent.weight);
 	}
 
 }

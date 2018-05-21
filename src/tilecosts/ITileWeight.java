@@ -6,7 +6,7 @@ import mycontroller.Node;
 import tiles.MapTile;
 import utilities.Coordinate;
 
-public interface ITileCost {
+public interface ITileWeight {
 
-	public double getCost(Node node, HashMap<Coordinate, MapTile> map);
+	public double getWeight(Node node, HashMap<Coordinate, MapTile> map);
 }

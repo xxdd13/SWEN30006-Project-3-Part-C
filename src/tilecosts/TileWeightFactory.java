@@ -4,29 +4,27 @@ import java.util.HashMap;
 
 import tiles.*;
 
-public class TileCostPool {
+public class TileWeightFactory {
 
-	private static TileCostPool instance = new TileCostPool();
-	private HashMap<Class<?>, ITileCost> pool;
+	private static TileWeightFactory instance = new TileWeightFactory();
+	private HashMap<Class<?>, ITileWeight> pool;
 	
-	public TileCostPool() {
+	public TileWeightFactory() {
 		initiliazePool();
 	}
 	
 	public void initiliazePool() {
 		pool = new HashMap<>();
 		pool.put((new MapTile(MapTile.Type.ROAD)).getClass(), new MapTileCost());
-		pool.put((new MudTrap()).getClass(), new MudTrapCost());
 		pool.put((new LavaTrap()).getClass(), new LavaTrapCost());
-		pool.put((new GrassTrap()).getClass(), new GrassTrapCost());
 		pool.put((new HealthTrap()).getClass(), new HealthTileCost());
 	}
 	
-	public static TileCostPool getInstance() {
+	public static TileWeightFactory getInstance() {
 		return instance;
 	}
 	
-	public ITileCost getTileCost(MapTile tile) 
+	public ITileWeight getWeight(MapTile tile) 
 	{
 		return pool.get(tile.getClass());
 	}

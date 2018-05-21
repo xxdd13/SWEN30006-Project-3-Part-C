@@ -14,6 +14,7 @@ import tiles.TrapTile;
 import utilities.Coordinate;
 import world.Car;
 import world.WorldSpatial;
+import world.WorldSpatial.Direction;
 
 
 public class AIController extends CarController {
@@ -118,7 +119,7 @@ public class AIController extends CarController {
 		MapTile currentTile = currentView.get(currentCoordinate);
 		
 		//testOnly , jump straight to pathfind
-		boolean test = false;
+		boolean test = true;
 		if(test){
 			keyList[0] = new Coordinate("23,15");
 			keyList[1] = new Coordinate("16,13");
@@ -129,7 +130,6 @@ public class AIController extends CarController {
 		if(hasAllKeys()) {  //ALL keys have been found
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			
-			FINAL_CAR_SPEED = 2;
 			if(getKey()==1) { //got all keys ! go to finish line
 				path = navigation.planRoute(currentCoordinate, finishes.get(0));	
 			}
@@ -164,16 +164,22 @@ public class AIController extends CarController {
 			
 			checkStateChange();
 			
+		
+			
+			
 			//car not stopped and not waiting for heal to finish
 			if(!onTrack && !halting) {
 				/*if car is not going back then speed up until car speed limit*/
 				if(getSpeed() < CAR_SPEED ){
 					applyForwardAcceleration();
+					
 				}
 				
 				
 				if(needGoNorth(currentCoordinate)){//should go to north
-					System.out.println("checking north               current direction:"+getOrientation()+" "+getAngle() +"  "+getSpeed() +"  "+path.get(0)+"  "+currentCoordinate);
+					//System.out.println("checking north               current direction:"+getOrientation()+" "+getAngle() +"  "+getSpeed() +"  "+path.get(0)+"  "+currentCoordinate);
+					
+					
 					if(getOrientation().equals(WorldSpatial.Direction.EAST)){
 						//applyReverseAcceleration();
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
@@ -207,30 +213,40 @@ public class AIController extends CarController {
 					
 					
 					else{
+						System.out.println("wall head"+ checkCorner(currentCoordinate,getOrientation()));
 						
-						onTrack = true;
+						if (checkCorner(currentCoordinate,getOrientation())==0) {
+							onTrack = true;
+						}
+						else if(checkCorner(currentCoordinate,getOrientation())==-1){
+							lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+							applyLeftTurn(getOrientation(),delta);
+							
+							onTrack = false;
+						}
+						else if(checkCorner(currentCoordinate,getOrientation())==1){
+							lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+							applyRightTurn(getOrientation(),delta);
+							onTrack = false;
+						}
+						
 						
 						/*
 						if (getSpeed()<=STUCK_THRESHOLD) {
-													
-							applyBrake();
+							System.out.println("stuck ");
 							onTrack = false;
-							if(!checkNorth(currentView)) {
-								CAR_SPEED = FINAL_CAR_SPEED;
-								Coordinate newCoordinate = new Coordinate(currentCoordinate.x,currentCoordinate.y+1);
-								path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
-								applyForwardAcceleration();
-								
-								
-								System.out.println("CAN GO NORTH");
-								
-							}
+							
 							if(!checkWest(currentView)) {
-								Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y);
-								path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
+								System.out.println("nstuck west ");
+								applyReverseAcceleration();
+								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+								applyRightTurn(getOrientation(),delta);
+												
+								
 								
 							}
 							if(!checkEast(currentView)) {
+								System.out.println("nstuck east ");
 								Coordinate newCoordinate = new Coordinate(currentCoordinate.x+1,currentCoordinate.y);
 								path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
 								
@@ -240,10 +256,11 @@ public class AIController extends CarController {
 													
 						}
 						*/
+						
 					}
 				}
 				else if(needGoSouth(currentCoordinate)) {
-					System.out.println("checking south               current direction:"+getOrientation()+" "+getAngle() );
+					//System.out.println("checking south               current direction:"+getOrientation()+" "+getAngle() );
 					
 					if(getOrientation().equals(WorldSpatial.Direction.WEST)){
 						//applyReverseAcceleration();
@@ -263,12 +280,13 @@ public class AIController extends CarController {
 					}
 					else if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
 						System.out.println("U turn ! north -> south");
-						
+						CAR_SPEED = 1;
 						if(!checkEast(currentView)) {
-							
-						
-							Coordinate newCoordinate = new Coordinate(currentCoordinate.x+1,currentCoordinate.y);
-							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
+							applyReverseAcceleration();
+							lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+							applyRightTurn(getOrientation(),delta);
+							//Coordinate newCoordinate = new Coordinate(currentCoordinate.x+1,currentCoordinate.y);
+							//path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);
 							
 							System.out.println("eeeeeeeeeeeee");
 							
@@ -282,12 +300,12 @@ public class AIController extends CarController {
 							//applyRightTurn(getOrientation(),delta);
 							
 							applyReverseAcceleration();
-							lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-							applyRightTurn(getOrientation(),delta);
+							lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+							applyLeftTurn(getOrientation(),delta);
 							
 							
-							Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y-1);
-							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
+							//Coordinate newCoordinate = new Coordinate(currentCoordinate.x-1,currentCoordinate.y-1);
+							//path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
 							
 							System.out.println("wwwwwwwwwwwwwwww");
 						}
@@ -306,7 +324,7 @@ public class AIController extends CarController {
 				}
 				else if(needGoEast(currentCoordinate)) {
 					
-					System.out.println("checking east                current direction:"+getOrientation()+" "+getAngle() +"        "+getSpeed());
+					//System.out.println("checking east                current direction:"+getOrientation()+" "+getAngle() +"        "+getSpeed());
 					
 					if(getOrientation().equals(WorldSpatial.Direction.SOUTH)){
 						//applyReverseAcceleration();
@@ -348,7 +366,8 @@ public class AIController extends CarController {
 					
 					else{
 						onTrack = true;
-						/*
+						
+						
 						if (getSpeed()<STUCK_THRESHOLD) {
 							System.out.println("slow");
 							if(!checkNorth(currentView)) {
@@ -374,13 +393,13 @@ public class AIController extends CarController {
 							applyForwardAcceleration();
 							
 						}
-						*/
+						
 						
 						
 					}
 				}
 				else if(needGoWest(currentCoordinate)) {
-					System.out.println("checking west 		 current direction:"+getOrientation()+" "+getAngle() + "        "+getSpeed());
+					//System.out.println("checking west 		 current direction:"+getOrientation()+" "+getAngle() + "        "+getSpeed());
 					
 					
 					if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
@@ -417,15 +436,8 @@ public class AIController extends CarController {
 					
 					else{
 						onTrack = true;
-						
-						/*
-						if (getSpeed()<STUCK_THRESHOLD) {
-							applyForwardAcceleration();
-							
-							onTrack = false;
-						}
-						
-						*/
+						CAR_SPEED=FINAL_CAR_SPEED;
+
 					}
 				}
 			
@@ -434,6 +446,26 @@ public class AIController extends CarController {
 			// CAR IS ON TRACK
 			else {
 				//preventCornerCollision(getOrientation(),currentCoordinate, delta);
+				
+				if(getSpeed()<STUCK_THRESHOLD) {
+					if(checkCorner(currentCoordinate,getOrientation())==-1){
+						applyReverseAcceleration();
+						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+						System.out.println("test RIGHT");
+						applyLeftTurn(getOrientation(),delta);
+						
+					
+					}
+					else if(checkCorner(currentCoordinate,getOrientation())==1){
+						applyReverseAcceleration();
+						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+						System.out.println("test LEFT");
+						applyRightTurn(getOrientation(),delta);
+						
+						
+					}
+				}
+				
 				readjust(lastTurnDirection,delta);
 				if(isTurningRight){
 					
@@ -445,9 +477,9 @@ public class AIController extends CarController {
 				}
 				
 
-				else if( needTurn(getOrientation(),currentCoordinate)){
+				else if( needMove(getOrientation(),currentCoordinate)){
 					/*check if next 3 coordinate in path, if there is change in front then slow down*/
-					if(CheckTurningAhead(getOrientation(),currentCoordinate,currentView, delta)) {
+					if(needTurn(getOrientation(),currentCoordinate,currentView, delta)) {
 						
 						CAR_SPEED = CAR_SPEED_THRESHOLD1;
 						if(getSpeed() > CAR_SPEED_THRESHOLD1) {
@@ -458,7 +490,7 @@ public class AIController extends CarController {
 						}
 					}
 					/*if there is no turn ahead, remain original car speed*/
-					if(!CheckTurningAhead(getOrientation(),currentCoordinate,currentView, delta) && getSpeed() < CAR_SPEED){
+					if(!needTurn(getOrientation(),currentCoordinate,currentView, delta) && getSpeed() < CAR_SPEED){
 						applyForwardAcceleration();
 						CAR_SPEED = FINAL_CAR_SPEED ;
 					}
@@ -473,7 +505,7 @@ public class AIController extends CarController {
 					
 				}
 				
-				else if(!needTurn(getOrientation(),currentCoordinate)){
+				else if(!needMove(getOrientation(),currentCoordinate)){
 					onTrack = false;
 					CAR_SPEED = CHANGE_AHEAD_SPEED;
 				}
@@ -569,6 +601,63 @@ public class AIController extends CarController {
 
 	}
 	
+	private int checkCorner(Coordinate currentCoordinate, Direction orientation) {
+		int result = 0;
+		Coordinate left;
+		Coordinate right;
+		switch(orientation){
+		case EAST:
+			 left  =  new Coordinate(currentCoordinate.x-1,currentCoordinate.y+1);
+			 right  =  new Coordinate(currentCoordinate.x-1,currentCoordinate.y-1);
+			if (map.get(left).isType(MapTile.Type.WALL)){
+				result = -1;
+				break;
+			}else if(map.get(right).isType(MapTile.Type.WALL)){
+				result =1;
+				break;
+			}
+			
+			
+			break;
+		case NORTH:
+			 left  =  new Coordinate(currentCoordinate.x-1,currentCoordinate.y+1);
+			 right  =  new Coordinate(currentCoordinate.x+1,currentCoordinate.y+1);
+			if (map.get(left).isType(MapTile.Type.WALL)){
+				result = -1;
+				break;
+			}else if(map.get(right).isType(MapTile.Type.WALL)){
+				result =1;
+				break;
+			}
+			break;
+		case SOUTH:
+			 left  =  new Coordinate(currentCoordinate.x+1,currentCoordinate.y-1);
+			 right  =  new Coordinate(currentCoordinate.x-1,currentCoordinate.y-1);
+			if (map.get(left).isType(MapTile.Type.WALL)){
+				result = -1;
+				break;
+			}else if(map.get(right).isType(MapTile.Type.WALL)){
+				result =1;
+				break;
+			}
+			break;
+		case WEST:
+			 left  =  new Coordinate(currentCoordinate.x+1,currentCoordinate.y-1);
+			 right  =  new Coordinate(currentCoordinate.x+1,currentCoordinate.y+1);
+			if (map.get(left).isType(MapTile.Type.WALL)){
+				result = -1;
+				break;
+			}else if(map.get(right).isType(MapTile.Type.WALL)){
+				result =1;
+				break;
+			}
+			break;
+		default:
+			break;
+		
+		}
+		return result;
+	}
 	private boolean keyInView(HashMap<Coordinate, MapTile> currentView) {
 		MapTile key = currentView.get(keyList[getKey()-2]);
 			
@@ -854,18 +943,19 @@ public class AIController extends CarController {
 
 
 	/*check if turning is ahead, if yes then slow down the car speed*/
-	private boolean CheckTurningAhead(WorldSpatial.Direction orientation, Coordinate currentCoordinate,HashMap<Coordinate, MapTile> currentView ,float delta) {
+	private boolean needTurn(WorldSpatial.Direction orientation, Coordinate currentCoordinate,HashMap<Coordinate, MapTile> currentView ,float delta) {
 		boolean flag = false;
+		int sizeCheck = 3;
 		if (keyInView(currentView)) {
 			return true;
 		}
 		switch(orientation){
 		case EAST:
-			if(path.size() < 4) {
+			if(path.size() < sizeCheck) {
 				flag = true;						
 				break;	
 			}
-			for(int i=0;i<3;i++) {
+			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {
 					Coordinate frontCoord = new Coordinate(currentCoordinate.x+i+1, currentCoordinate.y);
 					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(keyList[getKey()-2])) {
@@ -878,12 +968,12 @@ public class AIController extends CarController {
 			
 	
 		case NORTH:
-			if(path.size() < 4) {
+			if(path.size() < sizeCheck) {
 				flag = true;						
 				break;	
 			}
 			
-			for(int i=0;i<3;i++) {
+			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {	
 					Coordinate frontCoord = new Coordinate(currentCoordinate.x, currentCoordinate.y+i+1);
 					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(keyList[getKey()-2])) {
@@ -897,11 +987,11 @@ public class AIController extends CarController {
 			
 			break;
 		case SOUTH:
-			if(path.size() < 4) {
+			if(path.size() < sizeCheck) {
 				flag = true;						
 				break;	
 			}
-			for(int i=0;i<3;i++) {
+			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {
 					Coordinate frontCoord = new Coordinate(currentCoordinate.x, currentCoordinate.y-(i+1));
 					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(keyList[getKey()-2])) {
@@ -913,14 +1003,15 @@ public class AIController extends CarController {
 			break;
 	
 		case WEST:	
-			if(path.size() < 4) {
+			if(path.size() < sizeCheck) {
 				flag = true;						
 				break;	
 			}
-			for(int i=0;i<3;i++) {
+			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {
-					Coordinate frontCoord = new Coordinate(currentCoordinate.x+i-1, currentCoordinate.y);
+					Coordinate frontCoord = new Coordinate(currentCoordinate.x-i-1, currentCoordinate.y);
 					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(keyList[getKey()-2])) {
+						System.out.println("turn issue");
 						flag = true;
 						break;
 					}
@@ -943,7 +1034,7 @@ public class AIController extends CarController {
 	 * @param currentCoordinate 
 	 * @return
 	 */
-	private boolean needTurn(WorldSpatial.Direction orientation, Coordinate currentCoordinate) {
+	private boolean needMove(WorldSpatial.Direction orientation, Coordinate currentCoordinate) {
 		
 		switch(orientation){
 		case EAST:
