@@ -121,7 +121,7 @@ public class AIController extends CarController {
 		MapTile currentTile = currentView.get(currentCoordinate);
 		
 		//testOnly , jump straight to pathfind
-		boolean test = false;
+		boolean test = true;
 		if(test){
 			keyList[0] = new Coordinate("23,15");
 			keyList[1] = new Coordinate("16,13");
@@ -381,9 +381,7 @@ public class AIController extends CarController {
 					if(getOrientation().equals(WorldSpatial.Direction.NORTH)){
 						System.out.println("1111111111    "+peek(getVelocity(),90,WorldSpatial.RelativeDirection.RIGHT,delta).getCoordinate()
 								+"      "+getX()+"  "+getY());
-						if(getX()>(float)(path.get(0).x)) {
-							applyForwardAcceleration();
-						}
+						
 						lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 						applyLeftTurn(getOrientation(),delta);
 						
@@ -1169,6 +1167,9 @@ private void preventCornerCollision(WorldSpatial.Direction orientation, Coordina
 		// Check tiles to towards the top
 		Coordinate next = new Coordinate(currentCoordinate.x, currentCoordinate.y+1);
 		if(!path.isEmpty() && path.get(0).equals(next)) {
+			if( getOrientation().equals(WorldSpatial.Direction.WEST)&& getX()>=(float)(path.get(0).x)) {
+				return false;
+			}
 			return true;
 		}
 		else {
