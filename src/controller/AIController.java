@@ -447,6 +447,13 @@ public class AIController extends CarController {
 			else {
 				//preventCornerCollision(getOrientation(),currentCoordinate, delta);
 				
+				
+				////////////////////////////////////////////////////////////
+				/////////////
+				//////////// HELP!
+				///////////it detects stuck, but unable to make a turn
+				//////////
+				///////////////////////////////////////////////////////////
 				if(getSpeed()<STUCK_THRESHOLD) {
 					if(checkCorner(currentCoordinate,getOrientation())==-1){
 						applyReverseAcceleration();
