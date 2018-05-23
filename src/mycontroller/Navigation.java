@@ -37,10 +37,10 @@ public class Navigation {
 	}
 	
 	
-	public List<Coordinate> planRoute(Coordinate location, Coordinate targetLocation) {
+	public List<Coordinate> getShortestPath(Coordinate location, Coordinate targetLocation) {
 		List<Coordinate> target = Arrays.asList(targetLocation);
 		System.out.println("new target: "+target+ "                currently at "+location);
-		route = pathfinder.planRoute(location, target, map);
+		route = pathfinder.getShortestPath(location, target, map);
 		return route;
 	}
 

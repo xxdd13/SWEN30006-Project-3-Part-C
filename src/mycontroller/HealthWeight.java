@@ -13,7 +13,7 @@ public class HealthWeight implements ITileWeight {
 
 	@Override
 	public double getWeight(Node node, HashMap<Coordinate, MapTile> map) {
-		if (!map.get(node.coordinate).isType(MapTile.Type.WALL)) {
+		if (!map.get(node.coord).isType(MapTile.Type.WALL)) {
 			return 1;
 		}
 		return Double.POSITIVE_INFINITY;

@@ -26,11 +26,11 @@ public class HealthNavigation extends Navigation{
 		return (float) Math.sqrt(Math.pow(c1.x-c2.x, 2)  +  Math.pow(c1.y-c2.y, 2) );
 	}
 	@Override
-	public List<Coordinate> planRoute(Coordinate location, Coordinate targetLocation) {
+	public List<Coordinate> getShortestPath(Coordinate location, Coordinate targetLocation) {
 		List<Coordinate> healthTarget = new ArrayList<>();
 		
 		
-		route = pathfinder.planRoute(location, this.healths, super.map);
+		route = pathfinder.getShortestPath(location, this.healths, super.map);
 		return route;
 	}
 	public void addHealthSpot(Coordinate c) {
