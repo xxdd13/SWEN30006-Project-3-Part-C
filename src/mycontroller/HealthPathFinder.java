@@ -17,10 +17,10 @@ public class HealthPathFinder extends DijkstraPathFinder {
 		MapTile tile = map.get(node.coordinate);
 		if (tile instanceof LavaTrap) {
 			ITileWeight weights = TileWeightFactory.getInstance().getWeight(tile);
-			node.setCost( Double.POSITIVE_INFINITY-1 + node.parent.weight);
+			node.setWeight( Double.POSITIVE_INFINITY-1 + node.parent.weight);
 		}else {
 			ITileWeight weights = TileWeightFactory.getInstance().getWeight(tile);
-			node.setCost(weights.getWeight(node, map) + node.parent.weight);
+			node.setWeight(weights.getWeight(node, map) + node.parent.weight);
 		}
 		
 	}

@@ -11,7 +11,7 @@ public class Node implements Comparable<Node> {
 	public Coordinate coordinate;
 	public Node parent;
 	public double weight;
-	public boolean traversed = false;
+	public boolean visited = false;
 	
 	public Node(Node parent, Coordinate coordinate) {
 		this.parent = parent;
@@ -31,7 +31,7 @@ public class Node implements Comparable<Node> {
 		return children;
 	}
 	
-	public void setCost(double cost) {
+	public void setWeight(double cost) {
 		this.weight = cost;
 	}
 	

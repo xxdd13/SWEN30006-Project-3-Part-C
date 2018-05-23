@@ -50,6 +50,7 @@ public class AIController extends CarController {
 	private List<Coordinate> finishes = new ArrayList<>();
 	private boolean halting = false;// default not stopped for heal
 	HashMap<Coordinate, MapTile> map = getMap();
+	private boolean startGetKey = false; // indicates roaming is finished
 	/////////////////////
 	
 	public Coordinate[] keyList = new Coordinate[getKey()-1];
@@ -127,14 +128,19 @@ public class AIController extends CarController {
 			map=getTestMap();
 		}
 		viewGetTraps(currentView);
-		if(hasAllKeys()) {  //ALL keys have been found
+		if(hasAllKeys()&&getSpeed()>1.8) {
+			CAR_SPEED = 2;
+		}
+		if( (hasAllKeys()&&getSpeed()<1.8) || (hasAllKeys()&& startGetKey)) {  //ALL keys have been found
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			
+			if(!startGetKey)startGetKey = true;
 			
 			if(getKey()==1) { //got all keys ! go to finish line
 				path = navigation.planRoute(currentCoordinate, finishes.get(0));	
 			}
 			//plan new path
-			else if(path==null||path.size()<=0) { //if current path finish or don't have one yet
+			else if(path==null||path.size()<=0 ) { //if current path finish or don't have one yet
 				System.out.println("current key number: "+(getKey()-1));
 				navigation.updateMap(map);
 				path = navigation.planRoute(currentCoordinate, keyList[getKey()-2]);			
@@ -145,6 +151,7 @@ public class AIController extends CarController {
 				
 			}
 			if(getHealth()<60 && navigation.getClass()!=healthNavigation.getClass() && !keyInView(currentView)&&!(currentTile instanceof LavaTrap )) {
+				healthNavigation.updateMap(map);
 				if(healthNavigation.planRoute(currentCoordinate, null)!=null){
 					System.out.print("finding heal !!    ");
 					navigation =healthNavigation;	
@@ -155,10 +162,15 @@ public class AIController extends CarController {
 			}
 			if(currentTile instanceof HealthTrap ){
 				if(getHealth()<95) { //stop to heal
-					applyBrake();
+					if(Math.abs(getSpeed())>0.11) {
+						applyReverseAcceleration();
+					}else if(Math.abs(getSpeed())<0.11) {
+						applyForwardAcceleration();
+					}
+					
 					if(!halting) {
 						halting = true;
-						System.out.println("Halt !!!!!!!!!!!!!!");
+						System.out.println("Halt !!!!!!!!!!!!!!mode: pathfind");
 					}
 					
 				}
@@ -167,9 +179,10 @@ public class AIController extends CarController {
 						halting=false;
 					}
 					
-					navigation =new Navigation(this.map, new DijkstraPathFinder());;	
+					navigation =new Navigation(this.map, new DijkstraPathFinder());	
 				}
 			}
+			
 			
 			checkStateChange();
 			
@@ -311,7 +324,7 @@ public class AIController extends CarController {
 							path = navigation.planRoute(newCoordinate, keyList[getKey()-2]);	
 						}
 						
-						//todo: new method detects lava til furthers see-able spot and change ahead speed
+						
 						
 					}
 					
@@ -464,11 +477,11 @@ public class AIController extends CarController {
 
 				////////////////////////////////////////////////////////////
 				/////////////
-				//////////// HELP!
-				///////////it detects stuck, but unable to make a turn
+				//////////// 
+				///////////it detects stuck, and make a turn
 				//////////
 				///////////////////////////////////////////////////////////
-				if(getSpeed()<STUCK_THRESHOLD) {
+				if(getSpeed()<STUCK_THRESHOLD && !halting) {
 					if(checkCorner(currentCoordinate,getOrientation())==-1){
 						
 						//when speed is 0 or almost 0, applyLeftTurn does not work
@@ -476,6 +489,7 @@ public class AIController extends CarController {
 						applyReverseAcceleration();
 						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 						applyLeftTurn(getOrientation(),delta);
+						System.out.println("turn RIGHT to unstuck");
 						
 					
 					}
@@ -497,8 +511,13 @@ public class AIController extends CarController {
 			
 		}
 		else {//missing keys, keep searching
-			if(currentTile instanceof HealthTrap && getHealth()<50) { //stop to heal
-				applyBrake();
+			if(currentTile instanceof HealthTrap && getHealth()<80 && !checkWallAhead(getOrientation(),currentView)) { //stop to heal
+				if(Math.abs(getSpeed())>0.5) {
+					applyReverseAcceleration();
+				}else if(Math.abs(getSpeed())<0.5) {
+					applyForwardAcceleration();
+				}
+				
 				halting = true;
 				System.out.println("Halt !!!!!!!!!!!!!!");
 				
@@ -557,8 +576,7 @@ public class AIController extends CarController {
 						// If there is wall ahead, turn right!
 						if(checkWallAhead(getOrientation(),currentView)){
 							lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-							isTurningRight = true;				
-							
+							isTurningRight = true;	
 						}
 
 					}
@@ -638,6 +656,9 @@ public class AIController extends CarController {
 		return result;
 	}
 	private boolean keyInView(HashMap<Coordinate, MapTile> currentView) {
+		if(getKey()==1) { //we have found all keys
+			return false;
+		}
 		MapTile key = currentView.get(keyList[getKey()-2]);
 			
 		return key != null && (getKey()-2)==((LavaTrap) key).getKey();
@@ -869,7 +890,7 @@ public class AIController extends CarController {
 		Coordinate currentPosition = new Coordinate(getPosition());
 		for(int i = 0; i <= wallSensitivity; i++){
 			MapTile tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
-			if(tile.isType(MapTile.Type.WALL)){
+			if(tile.isType(MapTile.Type.WALL) ){
 				return true;
 			}
 		}

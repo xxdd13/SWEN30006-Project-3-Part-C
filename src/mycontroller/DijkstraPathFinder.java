@@ -13,27 +13,27 @@ public class DijkstraPathFinder implements IPathFinder {
 
 	HashMap<Coordinate, Node> expanded;
 	Queue<Node> frontier;
-	private boolean pathFound = false;
+	
 	public DijkstraPathFinder() {
 		expanded = new HashMap<>();
 		frontier = new PriorityQueue<>();
 	}
 
 	@Override
-	public List<Coordinate> planRoute(Coordinate start, List<Coordinate> finish, HashMap<Coordinate, MapTile> map) {
-		
+	public List<Coordinate> planRoute(Coordinate start, List<Coordinate> targets, HashMap<Coordinate, MapTile> map) {
+		boolean pathFound = false;
 		expanded.clear();
 		frontier.clear();
 		Node current = new Node(null, start);
-		current.setCost(0);
+		current.setWeight(0);
 		expanded.put(current.coordinate, current);
 		frontier.add(current);
 		
 		while (!frontier.isEmpty()) {
 			current = frontier.remove();
-			current.traversed = true;
+			current.visited = true;
 			
-			if (finish.contains(current.coordinate)) {
+			if (targets.contains(current.coordinate)) {
 				pathFound = true;
 				break;
 			}
@@ -45,7 +45,7 @@ public class DijkstraPathFinder implements IPathFinder {
 					expanded.put(child.coordinate, child);
 					frontier.add(child);
 				}
-				else if (expanded.get(child.coordinate).traversed == false) {
+				else if (expanded.get(child.coordinate).visited == false) {
 					if (child.weight < expanded.get(child.coordinate).weight) {
 						frontier.remove(expanded.get(child.coordinate));
 						frontier.add(child);
@@ -73,7 +73,7 @@ public class DijkstraPathFinder implements IPathFinder {
 	public void setWeight(Node node, HashMap<Coordinate, MapTile> map) {
 		MapTile tile = map.get(node.coordinate);
 		ITileWeight weights = TileWeightFactory.getInstance().getWeight(tile);
-		node.setCost(weights.getWeight(node, map) + node.parent.weight);
+		node.setWeight(weights.getWeight(node, map) + node.parent.weight);
 	}
 
 }

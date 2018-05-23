@@ -31,7 +31,6 @@ public class HealthNavigation extends Navigation{
 		
 		
 		route = pathfinder.planRoute(location, this.healths, super.map);
-		if (route!=null)System.out.println("HEALING !                currently at "+location);
 		return route;
 	}
 	public void addHealthSpot(Coordinate c) {
