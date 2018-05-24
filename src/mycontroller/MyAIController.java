@@ -460,70 +460,7 @@ public class MyAIController extends CarController {
 		
 
 	}
-	/**
-	 * check corner depends on current orientation
-	 * check the left and right tile of the tile infront of the car
-	 * @param currentCoordinate
-	 * @param orientation
-	 * @return
-	 */
-	private int checkCorner(Coordinate currentCoordinate, Direction orientation) {
-		int result = 0;
-		Coordinate left;
-		Coordinate right;
-		switch(orientation){
-		case EAST:
-			 left  =  new Coordinate(currentCoordinate.x-1,currentCoordinate.y+1);
-			 right  =  new Coordinate(currentCoordinate.x-1,currentCoordinate.y-1);
-			if (map.get(left).isType(MapTile.Type.WALL)){
-				result = -1;
-				break;
-			}else if(map.get(right).isType(MapTile.Type.WALL)){
-				result =1;
-				break;
-			}
-			
-			
-			break;
-		case NORTH:
-			 left  =  new Coordinate(currentCoordinate.x-1,currentCoordinate.y+1);
-			 right  =  new Coordinate(currentCoordinate.x+1,currentCoordinate.y+1);
-			if (map.get(left).isType(MapTile.Type.WALL)){
-				result = -1;
-				break;
-			}else if(map.get(right).isType(MapTile.Type.WALL)){
-				result =1;
-				break;
-			}
-			break;
-		case SOUTH:
-			 left  =  new Coordinate(currentCoordinate.x+1,currentCoordinate.y-1);
-			 right  =  new Coordinate(currentCoordinate.x-1,currentCoordinate.y-1);
-			if (map.get(left).isType(MapTile.Type.WALL)){
-				result = -1;
-				break;
-			}else if(map.get(right).isType(MapTile.Type.WALL)){
-				result =1;
-				break;
-			}
-			break;
-		case WEST:
-			 left  =  new Coordinate(currentCoordinate.x+1,currentCoordinate.y-1);
-			 right  =  new Coordinate(currentCoordinate.x+1,currentCoordinate.y+1);
-			if (map.get(left).isType(MapTile.Type.WALL)){
-				result = -1;
-				break;
-			}else if(map.get(right).isType(MapTile.Type.WALL)){
-				result =1;
-				break;
-			}
-			break;
-		default:
-			break;
-		
-		}
-		return result;
-	}
+	
 	/**
 	 * check if there is an active key in view
 	 * active means we are currently going to get this key
@@ -1032,7 +969,7 @@ public class MyAIController extends CarController {
 			}
 		}
 		if(getMyOrientation().equals(WorldSpatial.Direction.EAST)){
-			if(		getX()<(float)(path.get(0).x+0.3) && (int)getX() !=World.MAP_WIDTH-1) {
+			if(		getX()<(float)(path.get(0).x+0.3) && World.MAP_WIDTH-2-(int)getX()==0) {
 				return false;
 			}
 		}
