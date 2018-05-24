@@ -152,7 +152,9 @@ public abstract class CarController {
 	public HashMap<Coordinate,MapTile> getMap(){
 		return World.getMap();
 	}
-	
+	public HashMap<Coordinate,MapTile> getTestMap(){
+		return World.getTestMap();
+	}
 	/**
 	 * This is the required update step for a controller.
 	 */

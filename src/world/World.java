@@ -16,6 +16,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import controller.CarController;
 import tiles.MapTile;
 import tiles.TrapTile;
+import tiles.HealthTrap;
 import tiles.LavaTrap;
 import utilities.Coordinate;
 /**
@@ -180,6 +181,19 @@ public class World {
 				Coordinate newCoord = new Coordinate(coord.x, reverseYAxis);
 				MapTile current = mapTiles.get(coord);
 				if (current.isType(MapTile.Type.TRAP)) current = new MapTile(MapTile.Type.ROAD);
+				providedMapTiles.put(newCoord, current);
+			}
+		}
+		return providedMapTiles;	
+	}
+	public static HashMap<Coordinate,MapTile> getTestMap(){
+		if(providedMapTiles.keySet().size() == 0){ // Lazy initialisation
+			for(Coordinate coord : mapTiles.keySet()){
+				int reverseYAxis = MAP_HEIGHT-coord.y;
+				Coordinate newCoord = new Coordinate(coord.x, reverseYAxis);
+				MapTile current = mapTiles.get(coord);
+				if (current instanceof LavaTrap) current = new LavaTrap();
+				if (current instanceof HealthTrap) current = new HealthTrap();
 				providedMapTiles.put(newCoord, current);
 			}
 		}

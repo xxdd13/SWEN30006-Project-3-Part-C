@@ -22,10 +22,10 @@ public class ManualController extends CarController{
         	applyReverseAcceleration();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-        	turnLeft(delta);
+        	turnLeft(delta/3f);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-        	turnRight(delta);
+        	turnRight(delta/3f);
         }
 	}
 }

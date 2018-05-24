@@ -1,4 +1,4 @@
-package tilecosts;
+package mycontroller;
 
 import java.util.HashMap;
 

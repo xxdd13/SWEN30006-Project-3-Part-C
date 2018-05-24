@@ -8,6 +8,6 @@ import utilities.Coordinate;
 
 public interface IPathFinder {
 
-	public List<Coordinate> planRoute(Coordinate start, List<Coordinate> finish, HashMap<Coordinate, MapTile> map);
+	public List<Coordinate> getShortestPath(Coordinate start, List<Coordinate> finish, HashMap<Coordinate, MapTile> map);
 	
 }
