@@ -14,7 +14,7 @@ public class MapTileWeight implements ITileWeight {
 	@Override
 	public double getWeight(Node node, HashMap<Coordinate, MapTile> map) {
 		if (!map.get(node.coord).isType(MapTile.Type.WALL)) {
-			return 2;
+			return 1;
 		}
 		return Double.POSITIVE_INFINITY;
 	}
