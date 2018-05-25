@@ -2,64 +2,38 @@ package mycontroller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
+
 import java.util.HashMap;
 import java.util.List;
 
-import tiles.HealthTrap;
-import tiles.LavaTrap;
 import tiles.MapTile;
 import utilities.Coordinate;
 
 public class Navigation {
 
-	HashMap<Coordinate, MapTile> map;
-	List<Coordinate> finish;
-	List<Coordinate> route;
+	List<Coordinate> path;
 	IPathFinder pathfinder;
 	
-	public Navigation(HashMap<Coordinate, MapTile> map, IPathFinder pathfinder) {
+	public Navigation(IPathFinder pathfinder) {
 		
-		this.map = map;
 		this.pathfinder = pathfinder;
 		
-		finish = new ArrayList<>();
-		
-		map.forEach((k,v) -> {
-			if (v.isType(MapTile.Type.FINISH)) {
-				finish.add(k);
-			}
-			
-		});
-		
 		
 	}
 	
 	
-	public List<Coordinate> getShortestPath(Coordinate location, Coordinate targetLocation) {
+	public List<Coordinate> getShortestPath(Coordinate location, Coordinate targetLocation, Map map) {
 		List<Coordinate> target = Arrays.asList(targetLocation);
 		System.out.println("new target: "+target+ "                currently at "+location);
-		route = pathfinder.getShortestPath(location, target, map);
-		return route;
+		path = pathfinder.getShortestPath(location, target, map.getMap());
+		return path;
 	}
 
 	
-/** updates the map with new traps, and replans route if necessary
- *  returns true when route is replanned  **/
-	public boolean updateMap(HashMap<Coordinate, MapTile> view) {
-		this.map = view;
-		return true;
-	}
 	
 	public List<Coordinate> getRoute() {
-		return this.route;
+		return this.path;
 	}
 
-
-	public void setMap(HashMap<Coordinate, MapTile> newMap) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

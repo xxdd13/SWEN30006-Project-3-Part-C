@@ -32,27 +32,22 @@ public class MyAIController extends CarController {
 	private int EAST_THRESHOLD = 3;
 	
 	private boolean onTrack = false;
-	private final float FINAL_CAR_SPEED =(float)3;
+	private float FINAL_CAR_SPEED =(float)3;
 	private float CAR_SPEED = FINAL_CAR_SPEED;
 	private final float STUCK_THRESHOLD = (float) 0.1;
-	private float TURN_SPEED_1 = (float) 3.0;
-	private float TURN_SPEED_2 = (float) 3.1;
-	private final float SLOW_CAR_SPEED = (float) 3.1;
+	private float TURN_SPEED_1 = (float) 4.9;
+	private float TURN_SPEED_2 = (float) 5.0;
 	private Navigation navigation;
 	private HealthNavigation healthNavigation;
 	private List<Coordinate> path;
-	private List<Coordinate> finishes = new ArrayList<>();
 	private boolean halting = false;
-	private HashMap<Coordinate, MapTile> map = getMap();
+	private Map map = new Map(getMap(),getKey());
 	private boolean startGetKey = false; 
 	private Direction customOrientation = WorldSpatial.Direction.EAST;
-	
-	public Coordinate[] keyList = new Coordinate[getKey()-1];
-	
 	public MyAIController(Car car) {
 		super(car);
-		navigation = new Navigation(map, new DijkstraPathFinder());
-		healthNavigation = new HealthNavigation(map, new HealthPathFinder());
+		navigation = new Navigation(new DijkstraPathFinder());
+		healthNavigation = new HealthNavigation(new HealthPathFinder());
 		
 	}
 	
@@ -60,57 +55,8 @@ public class MyAIController extends CarController {
 	 * check ifall keys have been obtained
 	 * @return
 	 */
-	private boolean hasAllKeys() {
-		for (int i=0;i<(keyList.length-1);i++) {
-			if (keyList[i]==null) return false;
-		}
-		return true;
-	}
-	/**
-	 * update map,since world's getMap() don't have trap tiles
-	 * @param view
-	 */
-	private void updateMap(HashMap<Coordinate, MapTile> view){
-		
-        for (HashMap.Entry<Coordinate, MapTile> entry: view.entrySet()) {
-        	 if(entry.getValue().equals(map.get(entry.getKey()))) {
-                 map.remove(entry.getKey());
-		 }
-		 if (entry.getValue() instanceof LavaTrap) {
-		                 LavaTrap lava = new LavaTrap();
-		                 map.put(entry.getKey(),lava);
-		 }else if (entry.getValue() instanceof HealthTrap) {
-		                 HealthTrap health = new HealthTrap();
-		                 map.put(entry.getKey(),health);
-		 }
-		 else {
-		                 map.put(entry.getKey(), entry.getValue());
-		 }
-        } 
-	}
-	/**
-	 * get lava and health in view and update map
-	 * @param view
-	 */
-	private void viewGetTraps(HashMap<Coordinate, MapTile> view) {
-		this.updateMap(view);
-		view.forEach((key,val) -> {
-			
-			if (val instanceof LavaTrap) {
-				int keyNum =((LavaTrap) val).getKey();
-				if( keyNum>0 && keyList[keyNum-1]==null) {
-					keyList[keyNum-1]=key;
-					System.out.println("found key: "+keyNum+" at "+key);
-				} 
-			}
-			else if (val instanceof HealthTrap) {
-				healthNavigation.addHealthSpot(key);
-			}
-			else if (val.isType(MapTile.Type.FINISH)) {
-				finishes.add(key);
-			}
-		});
-	}
+	
+	
 	
 	@Override
 	public void update(float delta) {
@@ -121,29 +67,20 @@ public class MyAIController extends CarController {
 		Coordinate currentCoordinate = new Coordinate(this.getPosition());
 		MapTile currentTile = currentView.get(currentCoordinate);
 		
-		//testOnly , jump straight to pathfind
-		boolean test = false;
-		if(test){
-			keyList[0] = new Coordinate("23,15");
-			keyList[1] = new Coordinate("16,13");
-			keyList[2] = new Coordinate("19,2");
-			map=getTestMap();
-		}
-		
-		viewGetTraps(currentView);
+		map.markVisited(currentCoordinate);
+		map.updateMap(currentView);
 
-		if( hasAllKeys() ) {  //ALL keys have been found
-			
+		if( map.hasAllKeys() ) {  //ALL keys have been found
+			FINAL_CAR_SPEED = 5;
 			if(!startGetKey)startGetKey = true;
 			
 			if(getKey()==1) { //got all keys ! go to finish line
-				path = navigation.getShortestPath(currentCoordinate, finishes.get(0));	
+				path = navigation.getShortestPath(currentCoordinate, map.finishes.get(0),map);	
 			}
 			//plan new path
 			else if(path==null||path.size()<=0 ) { //if current path finish or don't have one yet
 				System.out.println("current key number: "+(getKey()-1));
-				navigation.updateMap(map);
-				path = navigation.getShortestPath(currentCoordinate, keyList[getKey()-2]);			
+				path = navigation.getShortestPath(currentCoordinate, map.nextKey(getKey()),map);			
 			}else {
 				if(currentCoordinate.equals(path.get(0))) {
 					path.remove(0);
@@ -151,19 +88,18 @@ public class MyAIController extends CarController {
 				
 			}
 			//go find heal
-			if(getHealth()<60 && navigation.getClass()!=healthNavigation.getClass() && !keyInView(currentView)&&!(currentTile instanceof LavaTrap )) {
-				healthNavigation.updateMap(map);
-				if(healthNavigation.getShortestPath(currentCoordinate, null)!=null){
+			if(getHealth()<30 && navigation.getClass()!=healthNavigation.getClass() && !map.keyInView(currentView,getKey())&&!(currentTile instanceof LavaTrap )) {
+
+				if(healthNavigation.getShortestPath(currentCoordinate, null,map)!=null){
 					System.out.print("finding heal !!    ");
 					navigation =healthNavigation;	
-					navigation.updateMap(map);
-					path = navigation.getShortestPath(currentCoordinate, null);		
+					path = navigation.getShortestPath(currentCoordinate, null,map);		
 				}	
 					
 			}
 			//slow down to heal
 			if(currentTile instanceof HealthTrap ){
-				if(getHealth()<100) { //stop to heal
+				if(getHealth()<80) { //stop to heal
 					if(Math.abs(getSpeed())>0.11) {
 						applyReverseAcceleration();
 					}else if(Math.abs(getSpeed())<0.11) {
@@ -179,8 +115,8 @@ public class MyAIController extends CarController {
 				else { //ready to go
 					if(halting) {
 						halting=false;
-						navigation =new Navigation(this.map, new DijkstraPathFinder());	
-						path = navigation.getShortestPath(currentCoordinate, keyList[getKey()-2]);
+						navigation =new Navigation(new DijkstraPathFinder());	
+						path = navigation.getShortestPath(currentCoordinate, map.nextKey(getKey()),map);
 					}
 					
 						
@@ -277,28 +213,6 @@ public class MyAIController extends CarController {
 					}
 					else{
 						onTrack = true;
-						
-						if (getSpeed()<STUCK_THRESHOLD) {
-							if(!checkNorth(currentView)) {
-								applyReverseAcceleration();
-								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-								applyLeftTurn(getOrientation(),delta);
-								Coordinate newCoordinate = new Coordinate(currentCoordinate.x,currentCoordinate.y+1);
-								path = navigation.getShortestPath(newCoordinate, keyList[getKey()-2]);	
-								
-							}
-							else if(!checkSouth(currentView)) {
-								applyReverseAcceleration();
-								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-								applyRightTurn(getOrientation(),delta);
-								Coordinate newCoordinate = new Coordinate(currentCoordinate.x,currentCoordinate.y-1);
-								path = navigation.getShortestPath(newCoordinate, keyList[getKey()-2]);	
-
-							}
-							onTrack = false;
-							
-							
-						}
 										
 					}
 				}
@@ -340,13 +254,13 @@ public class MyAIController extends CarController {
 							applyForwardAcceleration();
 						}
 					}
-					/*if there is no turnning in from */
+					/*if there is no turning in front */
 					if(!needTurn(getMyOrientation(),currentCoordinate,currentView, delta) && getSpeed() < CAR_SPEED){
 						applyForwardAcceleration();
 						CAR_SPEED = FINAL_CAR_SPEED ;
 					}
 					/*if no key inview and on lava, increase speed to escape*/
-					if(currentTile instanceof TrapTile && !keyInView(currentView) &&
+					if(currentTile instanceof TrapTile && !map.keyInView(currentView,getKey()) &&
 							((TrapTile)currentView.get(currentCoordinate)).canAccelerate()
 								) {
 
@@ -358,7 +272,7 @@ public class MyAIController extends CarController {
 				
 				else if(!needMove(getMyOrientation(),currentCoordinate)){
 					onTrack = false;
-					CAR_SPEED = SLOW_CAR_SPEED;
+					CAR_SPEED = FINAL_CAR_SPEED;
 				}
 
 
@@ -387,7 +301,7 @@ public class MyAIController extends CarController {
 			}
 			else {
 				halting = false;
-				viewGetTraps(currentView); //search key and health spot in the view
+				map.updateMap(currentView); //search key and health spot in the view
 				
 				checkStateChange();
 
@@ -461,20 +375,7 @@ public class MyAIController extends CarController {
 
 	}
 	
-	/**
-	 * check if there is an active key in view
-	 * active means we are currently going to get this key
-	 * @param currentView
-	 * @return
-	 */
-	private boolean keyInView(HashMap<Coordinate, MapTile> currentView) {
-		if(getKey()==1) { //we have found all keys
-			return false;
-		}
-		MapTile key = currentView.get(keyList[getKey()-2]);
-			
-		return key != null && (getKey()-2)==((LavaTrap) key).getKey();
-	}
+	
 	/**
 	 * Readjust the car to the orientation we are in.
 	 * @param lastTurnDirection
@@ -815,7 +716,7 @@ public class MyAIController extends CarController {
 	private boolean needTurn(WorldSpatial.Direction orientation, Coordinate currentCoordinate,HashMap<Coordinate, MapTile> currentView ,float delta) {
 		boolean flag = false;
 		int sizeCheck = 3;
-		if (keyInView(currentView)) {
+		if (map.keyInView(currentView,getKey())) {
 			return true;
 		}
 		switch(orientation){
@@ -827,7 +728,7 @@ public class MyAIController extends CarController {
 			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {
 					Coordinate frontCoord = new Coordinate(currentCoordinate.x+i+1, currentCoordinate.y);
-					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(keyList[getKey()-2])) {
+					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(map.nextKey(getKey()))	) {
 						flag = true;
 						break;
 					}
@@ -845,7 +746,7 @@ public class MyAIController extends CarController {
 			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {	
 					Coordinate frontCoord = new Coordinate(currentCoordinate.x, currentCoordinate.y+i+1);
-					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(keyList[getKey()-2])) {
+					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(map.nextKey(getKey()))	) {
 						flag = true;
 						return true;	
 					}
@@ -863,7 +764,7 @@ public class MyAIController extends CarController {
 			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {
 					Coordinate frontCoord = new Coordinate(currentCoordinate.x, currentCoordinate.y-(i+1));
-					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(keyList[getKey()-2])) {
+					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(	map.nextKey(getKey()))	) {
 						flag = true;
 						break;
 					}					
@@ -879,7 +780,7 @@ public class MyAIController extends CarController {
 			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {
 					Coordinate frontCoord = new Coordinate(currentCoordinate.x-i-1, currentCoordinate.y);
-					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(keyList[getKey()-2])) {
+					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(	map.nextKey(getKey()))	) {
 						flag = true;
 						break;
 					}
@@ -969,7 +870,7 @@ public class MyAIController extends CarController {
 			}
 		}
 		if(getMyOrientation().equals(WorldSpatial.Direction.EAST)){
-			if(		getX()<(float)(path.get(0).x+0.3) && World.MAP_WIDTH-2-(int)getX()==0) {
+			if(		getX()<(float)(path.get(0).x+0.9) && World.MAP_WIDTH-2-(int)getX()==0) {
 				return false;
 			}
 		}
@@ -1022,7 +923,7 @@ public class MyAIController extends CarController {
 	}
 	public void myTurnRight(Direction orientation) {
 		customOrientation = orientation;
-		if(orientation.equals(WorldSpatial.Direction.WEST)) {
+		if(orientation.equals(WorldSpatial.Direction.WEST) ||orientation.equals(WorldSpatial.Direction.SOUTH)) {
 			turnLeft(270f/150f);
 		}else {
 			turnRight(90f/150f);
