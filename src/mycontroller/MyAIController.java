@@ -51,23 +51,31 @@ public class MyAIController extends CarController {
 		HashMap<Coordinate, MapTile> currentView = getView();
 		Coordinate currentCoordinate = new Coordinate(this.getPosition());
 		MapTile currentTile = currentView.get(currentCoordinate);
+		
+		//update map and mark coord in current view as visited
 		map.markVisited(currentView);
 		map.updateMap(currentView);
+		
+		//turn off explore mode if all keys has been found
 		if (exploreMode && map.hasAllKeys()) exploreMode=false;
+		
 		if( map.hasAllKeys() || exploreMode) {  //ALL keys have been found
 			CAR_SPEED = FINAL_CAR_SPEED;
 			if(!startGetKey)startGetKey = true;
 			try {
-				if(exploreMode &&(path==null||path.size()<=0) ){
-					path = StrategyFactory.getInstance().getStrategy("ExploreStrategy").getShortestPath(currentCoordinate, null,map);
-				}
-				else if(getKey()==1) { //got all keys ! go to finish line
-						path = StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, map.finishes.get(0),map);
-				}
 				//plan new path
-				else if(path==null||path.size()<=0 ) { //if current path finish or don't have one yet
-					System.out.println("current key number: "+(getKey()-1));
-					path = StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, map.nextKey(getKey()),map);			
+				if(path==null||path.size()<=0 ) { //if current path finish or don't have one yet
+					if(getKey()==1) { //got all keys ! go to finish line
+						path = StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, map.finishes.get(0),map);
+						
+					}else if(exploreMode ){ // might be stuck in a loop , explore unvisited nodes
+						path = StrategyFactory.getInstance().getStrategy("ExploreStrategy").getShortestPath(currentCoordinate, null,map);
+						System.out.println(customOrientation+"   "+path+"  "+needGoWest(currentCoordinate));
+					}else if(getKey()-1 >=0){ //get key
+						System.out.println("current key number: "+(getKey()-1));
+						path = StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, map.nextKey(getKey()),map);
+					}
+					
 				}else {
 					if(currentCoordinate.equals(path.get(0))) {
 						path.remove(0);
@@ -700,7 +708,7 @@ public class MyAIController extends CarController {
 			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {
 					Coordinate frontCoord = new Coordinate(currentCoordinate.x+i+1, currentCoordinate.y);
-					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(map.nextKey(getKey()))	) {
+					if(!frontCoord.equals(path.get(i)) ) {
 						flag = true;
 						break;
 					}
@@ -718,7 +726,7 @@ public class MyAIController extends CarController {
 			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {	
 					Coordinate frontCoord = new Coordinate(currentCoordinate.x, currentCoordinate.y+i+1);
-					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(map.nextKey(getKey()))	) {
+					if(!frontCoord.equals(path.get(i)) ) {
 						flag = true;
 						return true;	
 					}
@@ -736,7 +744,7 @@ public class MyAIController extends CarController {
 			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {
 					Coordinate frontCoord = new Coordinate(currentCoordinate.x, currentCoordinate.y-(i+1));
-					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(	map.nextKey(getKey()))	) {
+					if(!frontCoord.equals(path.get(i))	) {
 						flag = true;
 						break;
 					}					
@@ -752,7 +760,7 @@ public class MyAIController extends CarController {
 			for(int i=0;i<sizeCheck;i++) {
 				if(path.size() > i) {
 					Coordinate frontCoord = new Coordinate(currentCoordinate.x-i-1, currentCoordinate.y);
-					if(!frontCoord.equals(path.get(i)) || frontCoord.equals(	map.nextKey(getKey()))	) {
+					if(!frontCoord.equals(path.get(i)) ) {
 						flag = true;
 						break;
 					}
