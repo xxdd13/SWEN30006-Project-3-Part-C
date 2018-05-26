@@ -94,7 +94,7 @@ public class Map {
 	 * get a list of unvisited node
 	 * @return
 	 */
-	public List<Coordinate> getUnvisitedCoords(){
+	public List<Coordinate> getUnvisitedCoords(Coordinate currentCoordinate){
 		List<Coordinate> unvisited = new ArrayList<>();
 		for (HashMap.Entry<Coordinate, Boolean> entry: visitedMap.entrySet()) {
 			Coordinate coord = entry.getKey();

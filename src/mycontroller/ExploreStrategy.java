@@ -29,7 +29,7 @@ public class ExploreStrategy implements INavigationStrategy{
 
 	@Override
 	public List<Coordinate> getShortestPath(Coordinate currentCoordinate, Coordinate coordinate, Map map) {
-		List<Coordinate> unvisitedCoords = map.getUnvisitedCoords();
+		List<Coordinate> unvisitedCoords = map.getUnvisitedCoords(currentCoordinate);
 		
 		 Collections.sort(unvisitedCoords, new Comparator<Coordinate>() {
 		        @Override

@@ -10,7 +10,6 @@ import tiles.LavaTrap;
 import tiles.MapTile;
 import utilities.Coordinate;
 import world.Car;
-import world.World;
 import world.WorldSpatial;
 import world.WorldSpatial.Direction;
 
@@ -19,13 +18,7 @@ public class MyAIController extends CarController {
 	
 	// How many minimum units the wall is away from the player.
 	private int wallSensitivity = 2;
-	private boolean isFollowingWall = false;
 	private WorldSpatial.RelativeDirection lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT; 
-	private boolean isTurningLeft = false;
-	private boolean isTurningRight = false; 
-	private WorldSpatial.Direction previousState = null; // Keeps track of the previous state
-	private int EAST_THRESHOLD = 3;
-	
 	private boolean onTrack = false;
 	private final float FINAL_CAR_SPEED =5f;
 	private float CAR_SPEED = 3;
@@ -586,6 +579,7 @@ public class MyAIController extends CarController {
 		if(getMyOrientation().equals(WorldSpatial.Direction.WEST)){
 			Coordinate left = new Coordinate(currentCoordinate.x-1, currentCoordinate.y);
 			if(		getX()>(float)(path.get(0).x-0.2)  && !map.hasWallAtCoord(left)	) {
+				System.out.println(222);
 				return false;
 			}
 		}
@@ -597,7 +591,7 @@ public class MyAIController extends CarController {
 		}
 		
 		if(!path.isEmpty() && path.get(0).equals(next)) {
-			
+
 			return true;
 		}
 		else {
