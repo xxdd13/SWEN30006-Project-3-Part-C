@@ -13,10 +13,12 @@ public class MapTileWeight implements ITileWeight {
 
 	@Override
 	public double getWeight(Node node, HashMap<Coordinate, MapTile> map) {
-		if (!map.get(node.coord).isType(MapTile.Type.WALL)) {
-			return 2;
+		if (map.get(node.coord).isType(MapTile.Type.WALL)) {
+			return  Double.POSITIVE_INFINITY; //road 
+		}else{
+			return 1; // wall can not pass
 		}
-		return Double.POSITIVE_INFINITY;
+		
 	}
 
 }

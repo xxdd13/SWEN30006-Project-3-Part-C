@@ -1,0 +1,76 @@
+WARNING - 21:38:30: First conversion pass
+ERROR - 21:38:30: java.net.MalformedURLException: unknown protocol: pathmap
+WARNING - 21:38:57: Convert mycontroller
+WARNING - 21:38:57: First conversion pass
+ERROR - 21:38:57: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/DijkstraPathFinder.java; systemId: file:///Part%20C/src/mycontroller/DijkstraPathFinder.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:38:57: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/DijkstraPathFinder.java; systemId: file:///Part%20C/src/mycontroller/DijkstraPathFinder.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+WARNING - 21:39:11: Convert mycontroller
+WARNING - 21:39:11: First conversion pass
+ERROR - 21:39:11: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/DijkstraPathFinder.java; systemId: file:///Part%20C/src/mycontroller/DijkstraPathFinder.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:39:11: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/DijkstraPathFinder.java; systemId: file:///Part%20C/src/mycontroller/DijkstraPathFinder.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+WARNING - 21:39:36: Convert mycontroller
+WARNING - 21:39:36: First conversion pass
+ERROR - 21:39:36: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/ITileWeight.java; systemId: file:///Part%20C/src/mycontroller/ITileWeight.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:39:36: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/ITileWeight.java; systemId: file:///Part%20C/src/mycontroller/ITileWeight.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+WARNING - 21:39:42: Convert mycontroller
+WARNING - 21:39:42: First conversion pass
+ERROR - 21:39:42: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/ITileWeight.java; systemId: file:///Part%20C/src/mycontroller/ITileWeight.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:39:42: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/ITileWeight.java; systemId: file:///Part%20C/src/mycontroller/ITileWeight.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+WARNING - 21:39:52: Convert mycontroller
+WARNING - 21:39:52: First conversion pass
+ERROR - 21:39:52: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/ITileWeight.java; systemId: file:///Part%20C/src/mycontroller/ITileWeight.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:39:52: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/ITileWeight.java; systemId: file:///Part%20C/src/mycontroller/ITileWeight.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+WARNING - 21:40:00: Convert mycontroller
+WARNING - 21:40:00: First conversion pass
+ERROR - 21:40:00: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/ITileWeight.java; systemId: file:///Part%20C/src/mycontroller/ITileWeight.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:40:00: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/mycontroller/ITileWeight.java; systemId: file:///Part%20C/src/mycontroller/ITileWeight.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+WARNING - 21:40:34: First conversion pass
+ERROR - 21:40:34: java.net.MalformedURLException: unknown protocol: pathmap
+WARNING - 21:40:47: First conversion pass
+ERROR - 21:40:47: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/utilities/Coordinate.java; systemId: file:///Part%20C/src/utilities/Coordinate.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+ERROR - 21:40:47: org.xml.sax.SAXParseExceptionpublicId: /Part%20C/src/utilities/Coordinate.java; systemId: file:///Part%20C/src/utilities/Coordinate.java; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+WARNING - 21:42:45: Convert mycontroller
+INFO - 21:42:45: Java PackageFragment mycontroller was translated as UML ModelImpl mycontroller
+WARNING - 21:42:45: First conversion pass
+INFO - 21:42:45: Entering Java PackageFragment mycontroller
+ERROR - 21:42:45: java.net.MalformedURLException: unknown protocol: pathmap
+org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.handleDemandLoadException(ResourceSetImpl.java:319)
+org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.demandLoadHelper(ResourceSetImpl.java:278)
+org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.getResource(ResourceSetImpl.java:406)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.load(AbstractJava2UMLConverter.java:2274)
+org.eclipse.umlgen.reverse.java.Java2UMLConverter.initializeModel(Java2UMLConverter.java:137)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.convert(AbstractJava2UMLConverter.java:347)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.doConvertion(AbstractJava2UMLConverter.java:546)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.convert(AbstractJava2UMLConverter.java:256)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.convert(AbstractJava2UMLConverter.java:2248)
+org.eclipse.umlgen.reverse.java.internal.wizards.Java2UMLWizard.doFinish(Java2UMLWizard.java:178)
+org.eclipse.umlgen.reverse.java.internal.wizards.Java2UMLWizard$1.run(Java2UMLWizard.java:104)
+org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:119)
+WARNING - 21:42:51: Convert mycontroller
+INFO - 21:42:51: Java PackageFragment mycontroller was translated as UML ModelImpl mycontroller
+WARNING - 21:42:51: First conversion pass
+INFO - 21:42:51: Entering Java PackageFragment mycontroller
+ERROR - 21:42:51: org.eclipse.emf.ecore.xmi.PackageNotFoundException: Package with uri 'null' not found. (file:///Part%20C/src/classdiag.ucls, 3, 86)
+org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.handleDemandLoadException(ResourceSetImpl.java:319)
+org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.demandLoadHelper(ResourceSetImpl.java:278)
+org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.getResource(ResourceSetImpl.java:406)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.load(AbstractJava2UMLConverter.java:2274)
+org.eclipse.umlgen.reverse.java.Java2UMLConverter.initializeModel(Java2UMLConverter.java:110)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.convert(AbstractJava2UMLConverter.java:347)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.doConvertion(AbstractJava2UMLConverter.java:546)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.convert(AbstractJava2UMLConverter.java:256)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.convert(AbstractJava2UMLConverter.java:2248)
+org.eclipse.umlgen.reverse.java.internal.wizards.Java2UMLWizard.doFinish(Java2UMLWizard.java:178)
+org.eclipse.umlgen.reverse.java.internal.wizards.Java2UMLWizard$1.run(Java2UMLWizard.java:104)
+org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:119)
+ERROR - 21:42:51: org.eclipse.emf.ecore.xmi.PackageNotFoundException: Package with uri 'null' not found. (file:///Part%20C/src/classdiag.ucls, 3, 86)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.throwCoreException(AbstractJava2UMLConverter.java:2216)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.load(AbstractJava2UMLConverter.java:2281)
+org.eclipse.umlgen.reverse.java.Java2UMLConverter.initializeModel(Java2UMLConverter.java:110)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.convert(AbstractJava2UMLConverter.java:347)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.doConvertion(AbstractJava2UMLConverter.java:546)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.convert(AbstractJava2UMLConverter.java:256)
+org.eclipse.umlgen.reverse.java.AbstractJava2UMLConverter.convert(AbstractJava2UMLConverter.java:2248)
+org.eclipse.umlgen.reverse.java.internal.wizards.Java2UMLWizard.doFinish(Java2UMLWizard.java:178)
+org.eclipse.umlgen.reverse.java.internal.wizards.Java2UMLWizard$1.run(Java2UMLWizard.java:104)
+org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:119)

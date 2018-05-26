@@ -7,7 +7,5 @@ import tiles.MapTile;
 import utilities.Coordinate;
 
 public interface IPathFinder {
-
-	public List<Coordinate> getShortestPath(Coordinate start, List<Coordinate> finish, HashMap<Coordinate, MapTile> map);
-	
+	List<Coordinate> getShortestPath(Coordinate start, List<Coordinate> targets, HashMap<Coordinate, MapTile> map);
 }
