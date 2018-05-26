@@ -1,27 +1,26 @@
 package mycontroller;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
-import java.util.HashMap;
 import java.util.List;
 
-import tiles.MapTile;
 import utilities.Coordinate;
 
-public class Navigation {
+
+/**
+ * 
+ * strategy to navigate to a given location
+ *
+ */
+public class NormalStrategy implements INavigationStrategy{
 
 	List<Coordinate> path;
 	IPathFinder pathfinder;
 	
-	public Navigation(IPathFinder pathfinder) {
-		
-		this.pathfinder = pathfinder;
-		
-		
+	public NormalStrategy() {
+		pathfinder = new DijkstraPathFinder();	
 	}
-	
-	
+		
 	public List<Coordinate> getShortestPath(Coordinate location, Coordinate targetLocation, Map map) {
 		List<Coordinate> target = Arrays.asList(targetLocation);
 		System.out.println("new target: "+target+ "                currently at "+location);
@@ -29,8 +28,6 @@ public class Navigation {
 		return path;
 	}
 
-	
-	
 	public List<Coordinate> getRoute() {
 		return this.path;
 	}

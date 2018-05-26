@@ -77,7 +77,7 @@ public class DijkstraPathFinder implements IPathFinder {
 			path.add(0, current.coord);
 			current = current.parent;
 		}
-		System.out.println("path: "+ path);
+		//System.out.println("path: "+ path);
 		return path;
 	}
 	

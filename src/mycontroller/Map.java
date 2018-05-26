@@ -27,11 +27,14 @@ public class Map {
 		
 		for (HashMap.Entry<Coordinate, MapTile> entry: map.entrySet()) {
 	    		Coordinate k = entry.getKey();
-	    		System.out.println(k);
 	    		visitedMap.put(k, false);
 		}
 		
 	}
+	/**
+	 * check ifall keys have been obtained
+	 * @return
+	 */
 	public boolean hasAllKeys() {
 		for (int i=0;i<(keyList.length-1);i++) {
 			if (keyList[i]==null) return false;
@@ -41,17 +44,22 @@ public class Map {
 	public Coordinate  nextKey(int keyNumber) {
 		return keyList[keyNumber-2];
 	}
+	
+	/**
+	 * update the map with tiles in current view
+	 * @param view
+	 */
 	public void updateMap(HashMap<Coordinate, MapTile> view){
 		
 		
 		
         for (HashMap.Entry<Coordinate, MapTile> entry: view.entrySet()) {
         		
-        		Coordinate k = entry.getKey();
-        		MapTile v = entry.getValue();
+        	Coordinate k = entry.getKey();
+        	MapTile v = entry.getValue();
         		
         		
-	        	if(v.equals(map.get(k))) {
+	        if(v.equals(map.get(k))) {
 	                 map.remove(k);
 			}
 			if (v instanceof LavaTrap) {
@@ -70,13 +78,33 @@ public class Map {
 			     healths.add(k);            
 			}
 			else {
-				if(v.isType(MapTile.Type.FINISH)) finishes.add(k);
+				if(v.isType(MapTile.Type.FINISH)&&!finishes.contains(k)) finishes.add(k);
 			     map.put(k, v);
 			}
         } 
 	}
+	/**
+	 * get a hashmap of current Map
+	 * @return
+	 */
 	public HashMap<Coordinate, MapTile> getMap(){
 		return this.map;
+	}
+	/**
+	 * get a list of unvisited node
+	 * @return
+	 */
+	public List<Coordinate> getUnvisitedCoords(){
+		List<Coordinate> unvisited = new ArrayList<>();
+		for (HashMap.Entry<Coordinate, Boolean> entry: visitedMap.entrySet()) {
+			Coordinate coord = entry.getKey();
+        	Boolean visited = entry.getValue();
+    		if(!visited) { // havn't visited yet
+    			unvisited.add(coord);
+    		}	
+		}
+		
+		return unvisited;
 	}
 	
 	public boolean keyInView(HashMap<Coordinate, MapTile> currentView, int keyNum) {
@@ -88,11 +116,16 @@ public class Map {
 		return key != null && (keyNum-2)==((LavaTrap) key).getKey();
 	}
 	
-	public void markVisited(Coordinate coord) {
-		if(visitedMap.get(coord) == false) {
-			visitedMap.put(coord,true);
-			
+	public void markVisited(HashMap<Coordinate, MapTile> view) {
+		for (HashMap.Entry<Coordinate, MapTile> entry: view.entrySet()) {
+			Coordinate coord = entry.getKey();
+			if(visitedMap.containsKey(coord) && visitedMap.get(coord) == false) {//previously not visited
+				visitedMap.remove(coord);
+				visitedMap.put(coord,true);//now visited
+				
+			}
 		}
+		
 		
 	}
 

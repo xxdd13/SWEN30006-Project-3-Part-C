@@ -7,17 +7,18 @@ import tiles.*;
 public class TileWeightFactory {
 
 	private static TileWeightFactory instance = new TileWeightFactory();
-	private HashMap<Class<?>, ITileWeight> pool;
+	private HashMap<Class<?>, ITileWeight> factory;
 	
 	public TileWeightFactory() {
-		initiliazePool();
+		initiliase();
 	}
 	
-	public void initiliazePool() {
-		pool = new HashMap<>();
-		pool.put((new MapTile(MapTile.Type.ROAD)).getClass(), new MapTileWeight());
-		pool.put((new LavaTrap()).getClass(), new LavaWeight());
-		pool.put((new HealthTrap()).getClass(), new HealthWeight());
+	public void initiliase() {
+		factory = new HashMap<>();
+		factory.put((new MapTile(MapTile.Type.ROAD)).getClass(), new MapTileWeight());
+		factory.put((new MapTile(MapTile.Type.FINISH)).getClass(), new MapTileWeight());
+		factory.put((new LavaTrap()).getClass(), new LavaWeight());
+		factory.put((new HealthTrap()).getClass(), new HealthWeight());
 	}
 	
 	public static TileWeightFactory getInstance() {
@@ -26,7 +27,7 @@ public class TileWeightFactory {
 	
 	public ITileWeight getWeight(MapTile tile) 
 	{
-		return pool.get(tile.getClass());
+		return factory.get(tile.getClass());
 	}
 
 }
