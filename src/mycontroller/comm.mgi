@@ -17,7 +17,7 @@
         <Association destinationClassName="mycontroller.Node"
             endpointName="parent" kind="Simple"/>
     </CommunicationClass>
-    <CommunicationClass name="mycontroller.Map" x="765" y="78"/>
+    <CommunicationClass name="mycontroller.Map" x="785" y="73"/>
     <CommunicationClass name="mycontroller.ExploreStrategy" x="752" y="459">
         <Extension destinationClassName="mycontroller.INavigationStrategy"/>
         <Association destinationClassName="mycontroller.IPathFinder"

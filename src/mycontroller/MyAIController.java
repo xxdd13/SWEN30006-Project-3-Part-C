@@ -20,10 +20,8 @@ public class MyAIController extends CarController {
 	private int wallSensitivity = 2;
 	private WorldSpatial.RelativeDirection lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT; 
 	private boolean onTrack = false;
-	private final float FINAL_CAR_SPEED =5f;
-	private float CAR_SPEED = 3;
-	private float TURN_SPEED_1 = 4.9f;
-	private float TURN_SPEED_2 = 5f;
+	private float CAR_SPEED = 5f;
+
 	private List<Coordinate> path;
 	private boolean halting = false;
 	private Map map = new Map(getMap(),getKey());
@@ -53,7 +51,6 @@ public class MyAIController extends CarController {
 		if (exploreMode && map.hasAllKeys()) exploreMode=false;
 		
 		if( map.hasAllKeys() || exploreMode) {  //ALL keys have been found
-			CAR_SPEED = FINAL_CAR_SPEED;
 			if(!startGetKey)startGetKey = true;
 			
 				//plan new path
@@ -200,7 +197,6 @@ public class MyAIController extends CarController {
 					
 					else{
 						onTrack = true;
-						CAR_SPEED=FINAL_CAR_SPEED;
 
 					}
 				}
@@ -212,20 +208,10 @@ public class MyAIController extends CarController {
 				
 				if( needMove(getMyOrientation(),currentCoordinate)){
 					/*check next few coordinate in path, slow down if need to turn*/
-					if(needTurn(getMyOrientation(),currentCoordinate,currentView, delta)) {
-						
-						CAR_SPEED = TURN_SPEED_1;
-						if(getSpeed() > TURN_SPEED_1) {
-							applyBrake();
-						}
-						else if(CAR_SPEED < TURN_SPEED_2){
-							applyForwardAcceleration();
-						}
-					}
+					
 					/*if there is no turning in front */
-					if(!needTurn(getMyOrientation(),currentCoordinate,currentView, delta) && getSpeed() < CAR_SPEED){
+					if(getSpeed() < CAR_SPEED){
 						applyForwardAcceleration();
-						CAR_SPEED = FINAL_CAR_SPEED ;
 					}
 
 					
@@ -233,7 +219,6 @@ public class MyAIController extends CarController {
 				
 				else if(!needMove(getMyOrientation(),currentCoordinate)){
 					onTrack = false;
-					CAR_SPEED = FINAL_CAR_SPEED;
 				}
 
 			
@@ -399,100 +384,7 @@ public class MyAIController extends CarController {
 
 
 
-	/**
-	 * @param orientation
-	 * @param currentCoordinate 
-	 * @param currentView 
-	 * @param delta 
-	 * @return
-	 * check if turning is ahead by compare next few coord in path
-	 * if there is a mismatch, it means the car have to turn
-	 * to ensure turn will be sucessful, slow down speed
-	 * */
-	private boolean needTurn(WorldSpatial.Direction orientation, Coordinate currentCoordinate,HashMap<Coordinate, MapTile> currentView ,float delta) {
-		boolean flag = false;
-		int sizeCheck = 3;
-		if (map.keyInView(currentView,getKey())) {
-			return true;
-		}
-		switch(orientation){
-		case EAST:
-			if(path.size() < sizeCheck) {
-				flag = true;						
-				break;	
-			}
-			for(int i=0;i<sizeCheck;i++) {
-				if(path.size() > i) {
-					Coordinate frontCoord = new Coordinate(currentCoordinate.x+i+1, currentCoordinate.y);
-					if(!frontCoord.equals(path.get(i)) ) {
-						flag = true;
-						break;
-					}
-				}
-			}
-			break;
-			
-	
-		case NORTH:
-			if(path.size() < sizeCheck) {
-				flag = true;						
-				break;	
-			}
-			
-			for(int i=0;i<sizeCheck;i++) {
-				if(path.size() > i) {	
-					Coordinate frontCoord = new Coordinate(currentCoordinate.x, currentCoordinate.y+i+1);
-					if(!frontCoord.equals(path.get(i)) ) {
-						flag = true;
-						return true;	
-					}
-				}
-				
-			}
-			
-			
-			break;
-		case SOUTH:
-			if(path.size() < sizeCheck) {
-				flag = true;						
-				break;	
-			}
-			for(int i=0;i<sizeCheck;i++) {
-				if(path.size() > i) {
-					Coordinate frontCoord = new Coordinate(currentCoordinate.x, currentCoordinate.y-(i+1));
-					if(!frontCoord.equals(path.get(i))	) {
-						flag = true;
-						break;
-					}					
-				}
-			}
-			break;
-	
-		case WEST:	
-			if(path.size() < sizeCheck) {
-				flag = true;						
-				break;	
-			}
-			for(int i=0;i<sizeCheck;i++) {
-				if(path.size() > i) {
-					Coordinate frontCoord = new Coordinate(currentCoordinate.x-i-1, currentCoordinate.y);
-					if(!frontCoord.equals(path.get(i)) ) {
-						flag = true;
-						break;
-					}
-				}
-				
-			}
-			break;
-		default:
-			break;
-		}
-		
-		
-		return flag;
-		
-	}
-	
+
 	/**
 	 * check if the car is following path
 	 * @param orientation

@@ -42,7 +42,7 @@
             accessors-accepted="false" constructors-accepted="false"/>
         <Extension destinationClassName="mycontroller.ITileWeight"/>
     </Class>
-    <Class name="mycontroller.Node" x="736" y="538">
+    <Class name="mycontroller.Node" x="726" y="516">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
