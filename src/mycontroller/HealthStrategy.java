@@ -8,7 +8,7 @@ public class HealthStrategy  implements INavigationStrategy{
 	List<Coordinate> path;
 	IPathFinder pathfinder;	
 	public HealthStrategy() {
-		
+		//use healthpath finder and treat all lava as wall
 		pathfinder=new HealthPathFinder();
 	}
 	public List<Coordinate> getShortestPath(Coordinate location, Coordinate targetLocation,Map map) {

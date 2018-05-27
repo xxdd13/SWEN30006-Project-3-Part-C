@@ -80,7 +80,7 @@ public class MyAIController extends CarController {
 				}
 			
 			//go find heal
-			if(getHealth()<70 && !halting && !map.keyInView(currentView,getKey())&&!(currentTile instanceof LavaTrap )&&getKey()!=1) {
+			if(getHealth()<50 && !halting && !map.keyInView(currentView,getKey())&&!(currentTile instanceof LavaTrap )&&getKey()!=1) {
 				
 					if(StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, null,map)!=null){
 						System.out.print("finding heal !!    ");	
