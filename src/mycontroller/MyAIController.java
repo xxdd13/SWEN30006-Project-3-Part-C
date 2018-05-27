@@ -28,6 +28,7 @@ public class MyAIController extends CarController {
 	private boolean startGetKey = false; 
 	private Direction customOrientation = WorldSpatial.Direction.EAST;
 	private boolean exploreMode = true;
+	private boolean healing = false;
 	
 	public MyAIController(Car car) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		super(car);
@@ -80,14 +81,14 @@ public class MyAIController extends CarController {
 				}
 			
 			//go find heal
-			if(getHealth()<50 && !halting && !map.keyInView(currentView,getKey())&&!(currentTile instanceof LavaTrap )&&getKey()!=1) {
-				
-					if(StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, null,map)!=null){
-						System.out.print("finding heal !!    ");	
+			if(!healing&&getHealth()<33 && !halting && !map.keyInView(currentView,getKey())&&!(currentTile instanceof LavaTrap )&&getKey()!=1) {
+					if(StrategyFactory.getInstance().getStrategy("HealthStrategy").getShortestPath(currentCoordinate, null,map)!=null){
 						path = StrategyFactory.getInstance().getStrategy("HealthStrategy").getShortestPath(currentCoordinate, null,map);
-					}
-					
-					
+						System.out.println("finding heal !!    "+path);	
+						healing  = true;
+					}	
+			}else if(healing&&getHealth()==100 ) {
+				healing=false;
 			}
 			//slow down to heal
 			if(currentTile instanceof HealthTrap ){
@@ -485,7 +486,6 @@ public class MyAIController extends CarController {
 		}
 		
 		if(!path.isEmpty() && path.get(0).equals(next)) {
-
 			return true;
 		}
 		else {

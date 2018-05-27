@@ -14,7 +14,7 @@ public class HealthPathFinder extends DijkstraPathFinder {
 	 */
 	public void setWeight(Node node, HashMap<Coordinate, MapTile> map) {
 		MapTile tile = map.get(node.coord);
-		if (tile instanceof LavaTrap) {
+		if (tile instanceof LavaTrap) { //lava are walls in this mode
 			node.setWeight( Double.POSITIVE_INFINITY + node.parent.weight);
 		}else {
 			ITileWeight weights = TileWeightFactory.getInstance().getWeight(tile);

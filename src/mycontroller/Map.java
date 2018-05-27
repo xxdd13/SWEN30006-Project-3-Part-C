@@ -75,7 +75,8 @@ public class Map {
 			}else if (v instanceof HealthTrap) {
 			     HealthTrap health = new HealthTrap();
 			     map.put(k,health);
-			     healths.add(k);            
+			     if(!healths.contains(k))healths.add(k);   
+			              
 			}
 			else {
 				if(v.isType(MapTile.Type.FINISH)&&!finishes.contains(k)) finishes.add(k);
