@@ -46,7 +46,7 @@ public class DijkstraPathFinder implements IPathFinder {
 				//try to avoid tile next to a wall, to prevent stuck 
 				if(map.get(adjNode.coord).isType(MapTile.Type.WALL) &&
 						!map.get(current.coord).isType(MapTile.Type.WALL)) {
-					current.setWeight(current.weight+2f);
+					current.setWeight(current.weight+0.25f);
 				}
 				
 				// means this node''s tile is not wall

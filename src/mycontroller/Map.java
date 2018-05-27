@@ -27,7 +27,11 @@ public class Map {
 		
 		for (HashMap.Entry<Coordinate, MapTile> entry: map.entrySet()) {
 	    		Coordinate k = entry.getKey();
+	    		MapTile v = entry.getValue();
 	    		visitedMap.put(k, false);
+	    		if(v.isType(MapTile.Type.FINISH)) {
+	    			finishes.add(k);
+	    		}
 		}
 		
 	}
