@@ -39,7 +39,7 @@ public class ExploreStrategy implements INavigationStrategy{
 		    });  
 		
 		path = pathfinder.getShortestPath(currentCoordinate, unvisitedCoords, map.getMap());
-		System.out.println(path);
+		System.out.println(currentCoordinate+"  "+path);
 		return path;
 	}
 

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClassDiagram>
+    <CommunicationClass name="mycontroller.MapTileWeight" x="1115" y="450">
+        <Extension destinationClassName="mycontroller.ITileWeight"/>
+    </CommunicationClass>
+    <CommunicationClass name="mycontroller.HealthStrategy" x="244" y="450">
+        <Extension destinationClassName="mycontroller.INavigationStrategy"/>
+        <Association destinationClassName="mycontroller.IPathFinder"
+            endpointName="pathfinder" kind="Simple"/>
+        <Communication destinationClassName="mycontroller.IPathFinder"/>
+    </CommunicationClass>
+    <CommunicationClass name="mycontroller.ITileWeight" x="1000" y="533"/>
+    <CommunicationClass name="mycontroller.LavaWeight" x="1118" y="514">
+        <Extension destinationClassName="mycontroller.ITileWeight"/>
+    </CommunicationClass>
+    <CommunicationClass name="mycontroller.Node" x="528" y="663">
+        <Association destinationClassName="mycontroller.Node"
+            endpointName="parent" kind="Simple"/>
+    </CommunicationClass>
+    <CommunicationClass name="mycontroller.Map" x="765" y="78"/>
+    <CommunicationClass name="mycontroller.ExploreStrategy" x="752" y="459">
+        <Extension destinationClassName="mycontroller.INavigationStrategy"/>
+        <Association destinationClassName="mycontroller.IPathFinder"
+            endpointName="pathfinder" kind="Simple"/>
+        <Communication destinationClassName="mycontroller.IPathFinder"/>
+        <Communication destinationClassName="mycontroller.Map"/>
+    </CommunicationClass>
+    <CommunicationClass name="mycontroller.INavigationStrategy" x="502" y="184"/>
+    <CommunicationClass name="mycontroller.DijkstraPathFinder" x="496" y="527">
+        <Extension destinationClassName="mycontroller.IPathFinder"/>
+        <Communication destinationClassName="mycontroller.Node"/>
+        <Communication destinationClassName="mycontroller.TileWeightFactory"/>
+    </CommunicationClass>
+    <CommunicationClass name="mycontroller.TileWeightFactory" x="829" y="530">
+        <Association destinationClassName="mycontroller.ITileWeight"
+            endpointName="factory" kind="Simple"/>
+    </CommunicationClass>
+    <CommunicationClass name="mycontroller.HealthPathFinder" x="837" y="666">
+        <Extension destinationClassName="mycontroller.DijkstraPathFinder"/>
+        <Communication destinationClassName="mycontroller.Node"/>
+        <Communication destinationClassName="mycontroller.TileWeightFactory"/>
+    </CommunicationClass>
+    <CommunicationClass name="mycontroller.StrategyFactory" x="497" y="251">
+        <Association
+            destinationClassName="mycontroller.INavigationStrategy"
+            endpointName="factory" kind="Simple"/>
+    </CommunicationClass>
+    <CommunicationClass name="mycontroller.IPathFinder" x="503" y="458"/>
+    <CommunicationClass name="mycontroller.MyAIController" x="514" y="75">
+        <Association destinationClassName="mycontroller.Map"
+            endpointName="map" kind="Simple"/>
+        <Communication destinationClassName="mycontroller.Map"/>
+        <Communication destinationClassName="mycontroller.INavigationStrategy"/>
+    </CommunicationClass>
+    <CommunicationClass name="mycontroller.NormalStrategy" x="491" y="310">
+        <Extension destinationClassName="mycontroller.INavigationStrategy"/>
+        <Association destinationClassName="mycontroller.IPathFinder"
+            endpointName="pathfinder" kind="Simple"/>
+        <Communication destinationClassName="mycontroller.IPathFinder"/>
+    </CommunicationClass>
+    <CommunicationClass name="mycontroller.HealthWeight" x="1124" y="585">
+        <Extension destinationClassName="mycontroller.ITileWeight"/>
+    </CommunicationClass>
+</ClassDiagram>

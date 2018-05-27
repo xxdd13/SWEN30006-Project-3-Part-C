@@ -55,7 +55,7 @@ public class MyAIController extends CarController {
 		if( map.hasAllKeys() || exploreMode) {  //ALL keys have been found
 			CAR_SPEED = FINAL_CAR_SPEED;
 			if(!startGetKey)startGetKey = true;
-			try {
+			
 				//plan new path
 				if(path==null||path.size()<=0 ) { //if current path finish or don't have one yet
 					if(getKey()==1) { //got all keys ! go to finish line
@@ -64,7 +64,7 @@ public class MyAIController extends CarController {
 					}else if(exploreMode ){ // might be stuck in a loop , explore unvisited nodes
 						path = StrategyFactory.getInstance().getStrategy("ExploreStrategy").getShortestPath(currentCoordinate, null,map);
 						if( map.keyInView(currentView, getKey()) ) {
-							System.out.println("early");
+							
 							path = StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, map.nextKey(getKey()),map);
 							path.remove(0);
 						}
@@ -73,9 +73,7 @@ public class MyAIController extends CarController {
 						System.out.println("current key number: "+(getKey()-1));
 						path = StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, map.nextKey(getKey()),map);
 						path.remove(0);
-						//System.out.println("current loc: "+ currentCoordinate+"    " +path.get(0));
-						System.out.println("needGoSouth: "+ needGoSouth(currentCoordinate));
-
+						
 					}
 					
 				}else {
@@ -83,19 +81,15 @@ public class MyAIController extends CarController {
 						path.remove(0);
 					}
 				}
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-				e.printStackTrace();
-			}
+			
 			//go find heal
 			if(getHealth()<70 && !halting && !map.keyInView(currentView,getKey())&&!(currentTile instanceof LavaTrap )&&getKey()!=1) {
-				try {
+				
 					if(StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, null,map)!=null){
 						System.out.print("finding heal !!    ");	
 						path = StrategyFactory.getInstance().getStrategy("HealthStrategy").getShortestPath(currentCoordinate, null,map);
 					}
-				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-					e.printStackTrace();
-				}	
+					
 					
 			}
 			//slow down to heal
@@ -116,9 +110,11 @@ public class MyAIController extends CarController {
 				else { //i'm on a health tile but health is enough, ready to go
 					if(halting) {
 						halting=false;
-						try {
-							path = StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, map.nextKey(getKey()),map);
-						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {}}	
+						
+						path = StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, map.nextKey(getKey()),map);
+					}
+								
+						
 				}
 			}
 			
@@ -254,6 +250,13 @@ public class MyAIController extends CarController {
 				exploreMode = true;
 			}
 						
+		}
+		if(getSpeed()==0) {
+			myTurnLeft(WorldSpatial.Direction.EAST);
+			applyForwardAcceleration();
+			Coordinate newCoord = new Coordinate(currentCoordinate.x+1,currentCoordinate.y);
+			path = StrategyFactory.getInstance().getStrategy("ExploreStrategy").getShortestPath(newCoord, null,map);
+			
 		}
 			
 
@@ -579,7 +582,6 @@ public class MyAIController extends CarController {
 		if(getMyOrientation().equals(WorldSpatial.Direction.WEST)){
 			Coordinate left = new Coordinate(currentCoordinate.x-1, currentCoordinate.y);
 			if(		getX()>(float)(path.get(0).x-0.2)  && !map.hasWallAtCoord(left)	) {
-				System.out.println(222);
 				return false;
 			}
 		}
@@ -602,8 +604,16 @@ public class MyAIController extends CarController {
 	public boolean needGoSouth(Coordinate currentCoordinate){
 		Coordinate next = new Coordinate(currentCoordinate.x, currentCoordinate.y-1);
 		if(!path.isEmpty() && path.get(0).equals(next)) {
+			
 			if(getMyOrientation().equals(WorldSpatial.Direction.WEST)){
-				if(		getX()>(float)(path.get(0).x-0.2)	) {
+				Coordinate left = new Coordinate(currentCoordinate.x-1, currentCoordinate.y);
+				if(		getX()>(float)(path.get(0).x-0.2)	&&  !map.hasWallAtCoord(left)) {
+					return false;
+				}
+			}
+			if(getMyOrientation().equals(WorldSpatial.Direction.EAST)){
+				Coordinate right = new Coordinate(currentCoordinate.x+1, currentCoordinate.y);
+				if(		getX()<(float)(path.get(0).x+0.2)	&&  !map.hasWallAtCoord(right)) {
 					return false;
 				}
 			}
