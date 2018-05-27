@@ -10,10 +10,10 @@ public class TileWeightFactory {
 	private HashMap<Class<?>, ITileWeight> factory;
 	
 	public TileWeightFactory() {
-		initiliase();
+		initialise();
 	}
 	
-	public void initiliase() {
+	public void initialise() {
 		factory = new HashMap<>();
 		factory.put((new MapTile(MapTile.Type.ROAD)).getClass(), new MapTileWeight());
 		factory.put((new MapTile(MapTile.Type.FINISH)).getClass(), new MapTileWeight());

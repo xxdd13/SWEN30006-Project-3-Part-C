@@ -8,10 +8,10 @@ public class StrategyFactory {
 	private HashMap<String, INavigationStrategy> factory;
     
     public StrategyFactory() {
-		initiliase();
+    	initialise();
 	}
 	
-	public void initiliase() {
+	public void initialise() {
 		factory = new HashMap<>();
 		factory.put("ExploreStrategy", new ExploreStrategy());
 		factory.put("NormalStrategy", new NormalStrategy());

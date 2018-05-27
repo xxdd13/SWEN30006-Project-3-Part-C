@@ -70,8 +70,8 @@ public class MyAIController extends CarController {
 					}else if(getKey() >=1){ //get key
 						System.out.println("current key number: "+(getKey()-1));
 						path = StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, map.nextKey(getKey()),map);
-						path.remove(0);
-						
+						System.out.println(map.hasAllKeys());
+						if(path.size()>1)path.remove(0);			
 					}
 					
 				}else {
@@ -91,7 +91,7 @@ public class MyAIController extends CarController {
 				healing=false;
 			}
 			//slow down to heal
-			if(currentTile instanceof HealthTrap ){
+			if(currentTile instanceof HealthTrap  && !map.hasAllKeys()){
 				if(getHealth()<80) { //stop to heal
 					if(Math.abs(getSpeed())>0.01) {
 						applyReverseAcceleration();
@@ -108,8 +108,12 @@ public class MyAIController extends CarController {
 				else { //i'm on a health tile but health is enough, ready to go
 					if(halting) {
 						halting=false;
+						if(exploreMode ){ // might be stuck in a loop , explore unvisited nodes
+							path = StrategyFactory.getInstance().getStrategy("ExploreStrategy").getShortestPath(currentCoordinate, null,map);
+						}else {
+							path = StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, map.nextKey(getKey()),map);
+						}
 						
-						path = StrategyFactory.getInstance().getStrategy("NormalStrategy").getShortestPath(currentCoordinate, map.nextKey(getKey()),map);
 					}
 								
 						
@@ -118,7 +122,6 @@ public class MyAIController extends CarController {
 			
 			//car not stopped and not waiting for heal to finish
 			if(!onTrack && !halting) {
-							
 				if(needGoNorth(currentCoordinate)){//should go to north
 					//need to go north
 					
@@ -145,6 +148,7 @@ public class MyAIController extends CarController {
 					}
 				}
 				else if(needGoSouth(currentCoordinate)) {
+					
 					//need go south
 					if(getMyOrientation().equals(WorldSpatial.Direction.WEST)){
 						myTurnLeft(WorldSpatial.Direction.SOUTH);
@@ -153,7 +157,7 @@ public class MyAIController extends CarController {
 						myTurnRight(WorldSpatial.Direction.SOUTH);
 					}
 					else if(getMyOrientation().equals(WorldSpatial.Direction.NORTH)){
-						
+						System.out.println("11111  ");
 						//TURN TO SOUTH
 						myUTurn(WorldSpatial.Direction.SOUTH);
 					}			
@@ -168,7 +172,7 @@ public class MyAIController extends CarController {
 						myTurnLeft(WorldSpatial.Direction.EAST);
 					}
 					else if(getMyOrientation().equals(WorldSpatial.Direction.NORTH)){
-						if(getY()<(float)(path.get(0).y)) {
+						if(getY()<(float)(path.get(0).y+0.2)) {
 							applyForwardAcceleration();
 						}
 						myTurnRight(WorldSpatial.Direction.EAST);
@@ -207,10 +211,9 @@ public class MyAIController extends CarController {
 			// CAR IS ON TRACK
 			else {
 				
+				//speed up if still need to move
 				if( needMove(getMyOrientation(),currentCoordinate)){
-					/*check next few coordinate in path, slow down if need to turn*/
-					
-					/*if there is no turning in front */
+
 					if(getSpeed() < CAR_SPEED){
 						applyForwardAcceleration();
 					}
@@ -429,8 +432,7 @@ public class MyAIController extends CarController {
 			if(getMyOrientation().equals(WorldSpatial.Direction.SOUTH)){
 				Coordinate down = new Coordinate(currentCoordinate.x, currentCoordinate.y-1);
 				Coordinate left = new Coordinate(currentCoordinate.x+1, currentCoordinate.y+1);
-				if(		getY()>(float)(path.get(0).y)&&!map.hasWallAtCoord(down)	&& map.hasWallAtCoord(left)	) {
-					System.out.println(1111);
+				if(		getY()>(float)(path.get(0).y-0.2)&&!map.hasWallAtCoord(down)	) {
 					return false;
 				}
 			}
@@ -449,7 +451,7 @@ public class MyAIController extends CarController {
 			if(getMyOrientation().equals(WorldSpatial.Direction.NORTH)){
 				
 				Coordinate up = new Coordinate(currentCoordinate.x, currentCoordinate.y+1);
-				if(		getY()>(float)(path.get(0).y-0.2)  && !map.hasWallAtCoord(up)	) {
+				if(		getY()<(float)(path.get(0).y+0.2)  && !map.hasWallAtCoord(up)	) {
 					return false;
 				}
 			}
@@ -496,7 +498,6 @@ public class MyAIController extends CarController {
 	public boolean needGoSouth(Coordinate currentCoordinate){
 		Coordinate next = new Coordinate(currentCoordinate.x, currentCoordinate.y-1);
 		if(!path.isEmpty() && path.get(0).equals(next)) {
-			
 			if(getMyOrientation().equals(WorldSpatial.Direction.WEST)){
 				Coordinate left = new Coordinate(currentCoordinate.x-1, currentCoordinate.y);
 				if(		getX()>(float)(path.get(0).x-0.2)	&&  !map.hasWallAtCoord(left)) {
@@ -509,7 +510,10 @@ public class MyAIController extends CarController {
 					return false;
 				}
 			}
-			
+			if(path.size()>1) {
+				Coordinate next2 = new Coordinate(currentCoordinate.x, currentCoordinate.y-2);
+				if( path.get(1).equals(next)||  path.get(1).equals(next2)) return true;
+			}
 			
 			return true;
 		}
@@ -557,12 +561,22 @@ public class MyAIController extends CarController {
 	}
 	
 	public void myUTurn(Direction orientation) {
+		
 		customOrientation = orientation;
+		/*
 		if(lastTurnDirection.equals(WorldSpatial.RelativeDirection.RIGHT)) {
 			turnLeft(180f/150f);
 			lastTurnDirection=WorldSpatial.RelativeDirection.LEFT;
 		}else{
 			turnRight(180f/150f);
+			lastTurnDirection=WorldSpatial.RelativeDirection.RIGHT;
+		}
+		*/
+		if(orientation.equals(WorldSpatial.Direction.WEST) ||orientation.equals(WorldSpatial.Direction.SOUTH)) {
+			turnRight(180f/150f);
+			lastTurnDirection=WorldSpatial.RelativeDirection.LEFT;
+		}else {
+			turnLeft(180f/150f);
 			lastTurnDirection=WorldSpatial.RelativeDirection.RIGHT;
 		}
 		

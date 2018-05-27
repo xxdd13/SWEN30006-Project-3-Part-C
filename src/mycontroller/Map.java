@@ -32,11 +32,11 @@ public class Map {
 		
 	}
 	/**
-	 * check ifall keys have been obtained
+	 * check if all keys have been obtained
 	 * @return
 	 */
 	public boolean hasAllKeys() {
-		for (int i=0;i<(keyList.length-1);i++) {
+		for (int i=0;i<(keyList.length);i++) {
 			if (keyList[i]==null) return false;
 		}
 		return true;

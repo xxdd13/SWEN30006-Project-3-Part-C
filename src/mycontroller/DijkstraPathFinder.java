@@ -43,6 +43,12 @@ public class DijkstraPathFinder implements IPathFinder {
 				//set weight for each node depends on their tile type(lava/heal/wall/road)
 				setWeight(adjNode, map);
 				
+				//try to avoid tile next to a wall, to prevent stuck 
+				if(map.get(adjNode.coord).isType(MapTile.Type.WALL) &&
+						!map.get(current.coord).isType(MapTile.Type.WALL)) {
+					current.setWeight(current.weight+2f);
+				}
+				
 				// means this node''s tile is not wall
 				if (adjNode.weight < Double.POSITIVE_INFINITY) {
 					//if settledNodes doesn't have this adj node, put it in
