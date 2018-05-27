@@ -46,26 +46,34 @@ public class DijkstraPathFinder implements IPathFinder {
 				//try to avoid tile next to a wall, to prevent stuck 
 				if(map.get(adjNode.coord).isType(MapTile.Type.WALL) &&
 						!map.get(current.coord).isType(MapTile.Type.WALL)) {
+					//if adjacent tiles are wall, add small weight to it
 					current.setWeight(current.weight+0.25f);
 				}
 				
-				// means this node''s tile is not wall
+				// means this tile is not wall, can be passed 
 				if (adjNode.weight < Double.POSITIVE_INFINITY) {
+					
+					if(settledNodes.containsKey(adjNode.coord)) {
+						Node settledNode = settledNodes.get(adjNode.coord);
+						if (settledNode.visited == false) {// if it has it and it has not been visited before
+							
+							// if we have found a better node choice
+							if (adjNode.weight < settledNode.weight) {
+								unsettledNodes.remove(settledNode);
+								unsettledNodes.add(adjNode);
+								settledNodes.remove(adjNode.coord);
+								settledNodes.put(adjNode.coord, adjNode);
+							}
+						}
+					}
+
 					//if settledNodes doesn't have this adj node, put it in
-					if (!settledNodes.containsKey(adjNode.coord)) {
+					else {
 						settledNodes.put(adjNode.coord, adjNode);
 						unsettledNodes.add(adjNode);
 					}
-					// if it has it and it has not been visited before
-					else if (settledNodes.get(adjNode.coord).visited == false) {
-						// if we have found a better node choice
-						if (adjNode.weight < settledNodes.get(adjNode.coord).weight) {
-							unsettledNodes.remove(settledNodes.get(adjNode.coord));
-							unsettledNodes.add(adjNode);
-							settledNodes.remove(adjNode.coord);
-							settledNodes.put(adjNode.coord, adjNode);
-						}
-					}
+					
+					
 				}
 			};
 		}
